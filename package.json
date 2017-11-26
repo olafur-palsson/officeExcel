@@ -1,0 +1,41 @@
+{
+  "name": "stort2",
+  "version": "1.0.0",
+  "description": "Stórt verkefni 2",
+  "main": ".eslintrc.js",
+  "scripts": {
+    "eslint": "eslint --fix es6scripts.js",
+    "stylelint": "stylelint --fix *.scss scss/*.scss --syntax scss",
+    "lint": "npm-run-all --parallel eslint stylelint",
+    "babel": "babel es6scripts.js --watch --out-file all.js --source-maps",
+    "browser-sync": "browser-sync start --server --files index.html styles.css script-compiled.js",
+    "sass": "node-sass --source-map-embed --watch styles.scss styles.css",
+    "dev": "npm-run-all --parallel sass babel browser-sync"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/olafur-palsson/vefforritunstort2.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/olafur-palsson/vefforritunstort2/issues"
+  },
+  "homepage": "https://github.com/olafur-palsson/vefforritunstort2#readme",
+  "devDependencies": {
+    "babel-cli": "6.26.0",
+    "babel-eslint": "8.0.1",
+    "babel-preset-env": "1.6.1",
+    "browser-sync": "2.18.13",
+    "eslint": "4.9.0",
+    "eslint-config-airbnb-base": "12.1.0",
+    "eslint-plugin-import": "2.8.0",
+    "node-sass": "4.5.3",
+    "npm-run-all": "4.1.1",
+    "stylelint": "8.1.1",
+    "stylelint-config-primer": "2.0.1"
+  },
+  "dependencies": {
+    "requirejs": "^2.3.5"
+  }
+}

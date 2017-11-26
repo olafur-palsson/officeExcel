@@ -1,0 +1,14 @@
+{
+	"rateParameter": {
+		"seasonalWeight" : 150,
+		"occupancyWeight": 120,
+		"priceFloor"     : 100,
+		"futureWeight"   : 120,
+		"superDayWeight" : 50,
+		"weekendWeight"  : 25,
+		"groupDiscount"  : 0.1,
+		"tourOpDiscount" : 0.15,
+		"absoluteFloor"  : 135,
+		"sellOff"        : 50
+	}
+}

@@ -1,0 +1,11 @@
+.body {
+  display: flex;
+  max-width: 100vw;
+  box-sizing: content-box;
+  margin: 0;
+  font-family: "Roboto Condensed", sans-serif;
+  color: #fff;
+  flex-direction: column;
+  align-items: center;
+  background-color: #000;
+}
