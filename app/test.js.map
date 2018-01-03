@@ -1,0 +1,1 @@
+{"version":3,"sources":["../appES6/testES5.js"],"names":[],"mappings":";;AAAA,OAAO,YAAM;AACZ,QAAO;AACN,YAAU,oBAAM;AACf,UAAO,sBAAP;AACA;AAHK,EAAP;AAKA,CAND","file":"test.js","sourcesContent":["define(() => {\r\n\treturn {\r\n\t\ttestText: () => {\r\n\t\t\treturn \"hetaohnuseoahutneaos\"\r\n\t\t}\r\n\t}\r\n})"]}

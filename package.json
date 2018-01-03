@@ -7,10 +7,18 @@
     "eslint": "eslint --fix es6scripts.js",
     "stylelint": "stylelint --fix *.scss scss/*.scss --syntax scss",
     "lint": "npm-run-all --parallel eslint stylelint",
-    "babel": "babel es6scripts.js --watch --out-file all.js --source-maps",
+    "babel2": "babel appES6/codeES5.js --watch --out-file app/code.js --source-maps",
+    "babel3": "babel appES6/mainES5.js --watch --out-file app/main.js --source-maps",
+    "babel4": "babel appES6/testES5.js --watch --out-file app/test.js --source-maps",
+    "babel5": "babel appES6/requestES5.js --watch --out-file app/request.js --source-maps",
+    "babel6": "babel appES6/dateHelperES5.js --watch --out-file app/dateHelper.js --source-maps",
+    "babel6": "babel appES6/xmlHelperES5.js --watch --out-file app/xmlHelper.js --source-maps",
+    "babel7": "babel appES6/algorithmES5.js --watch --out-file app/algorithm.js --source-maps",
+    "babel8": "babel appES6/renderES5.js --watch --out-file app/render.js --source-maps",
     "browser-sync": "browser-sync start --server --files index.html styles.css script-compiled.js",
     "sass": "node-sass --source-map-embed --watch styles.scss styles.css",
-    "dev": "npm-run-all --parallel sass babel browser-sync"
+    "sass2": "node-sass --source-map-embed styles.scss styles.css",
+    "dev": "npm-run-all --parallel sass babel2 babel3 babel4 babel5 babel6 babel7 babel8 browser-sync"
   },
   "repository": {
     "type": "git",
@@ -36,6 +44,7 @@
     "stylelint-config-primer": "2.0.1"
   },
   "dependencies": {
+    "lodash": "^4.17.4",
     "requirejs": "^2.3.5"
   }
 }

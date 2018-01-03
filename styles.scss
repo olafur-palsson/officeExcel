@@ -5,7 +5,8 @@
   margin: 0;
   font-family: "Roboto Condensed", sans-serif;
   color: #fff;
-  flex-direction: column;
-  align-items: center;
   background-color: #000;
 }
+
+@import "scss/rates.scss";
+@import "scss/channelAvailability.scss";
