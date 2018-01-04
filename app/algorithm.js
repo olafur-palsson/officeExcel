@@ -1,6 +1,8 @@
 "use strict";
 
-define(function () {
+define(function (require) {
+  var render = require("render");
+
   var settings = void 0;
   var rateParameters = void 0;
 
@@ -45,7 +47,8 @@ define(function () {
     return 0;
   };
 
-  var getRates = function getRates(availabilityInput, settingsInput) {
+  var getRates = function getRates(availabilityInput) {
+
     var totalObj = {};
     for (var roomClass in availabilityInput) {
       for (var day in availabilityInput[roomClass]) {
@@ -54,7 +57,10 @@ define(function () {
       }
     }
 
-    settings = settingsInput;
+    console.log(availabilityInput);
+
+    var settingsString = window.localStorage.getItem("settings");
+    settings = JSON.parse(settingsString);
     rateParameters = settings.rateParameter;
 
     var priceFloor = rateParameters.priceFloor;
@@ -104,6 +110,10 @@ define(function () {
     });
 
     return ratesCalculated;
+  };
+
+  var groupCalculator = function groupCalculator(settingsInput, rates, availability) {
+    console.log("Hahahahaha");
   };
 
   return { getRates: getRates };

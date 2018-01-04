@@ -1,29 +1,10 @@
 
-requirejs(["request", "dateHelper", "xmlHelper", "algorithm", "render"], 
-          (reqData,    dateHelper,   xmlHelper,   algorithm,   render) => {
-  const settingsPromise = reqData.fromURL("rateSettings.json", "JSON")
-  settingsPromise
-  
-  .then(settings => {
-    const URLPromise = dateHelper.getDateURLrequestString()
-    console.log(xmlHelper)
-    URLPromise
-  .then(URL => {
-    reqData.fromURL(URL, "DOM")
-  .then(xmlDocument => {
-    const roomClasses = settings.roomTypes
-    const availability = xmlHelper.getAvailabilityObjects(xmlDocument, roomClasses)
+requirejs(["request", "dataHelper", "xmlHelper", "algorithm", "render", "eventBinder"], 
+          ( $req,     $dh,          $xmlh,       $alg,        $render,  $eb) => {
 
+  $dh.refreshData()
+  const refreshButton = document.querySelector(".refreshData")
+  $eb.bindClickEvent(refreshButton, $eb.refreshData)
+  $eb.bindPreformButton()
 
-    const rates = algorithm.getRates(availability, settings)
-    const rateTable = render.makeTableFromArray(rates, ["date", "rates", "availbilities"])
-    console.log(availability)
-    const ratesTable  = document.querySelector(".rates")
-    ratesTable.appendChild(rateTable)
-    const availabilityTable = render.getAvailabilityTable(availability)
-    const availbilities = document.querySelector(".channelAvailability")
-    availbilities.appendChild(availabilityTable)
-  })
-  })
-  })
 })

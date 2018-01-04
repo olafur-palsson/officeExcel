@@ -3,6 +3,7 @@
 define(function () {
 	return {
 		fromURL: function fromURL(url, parserType) {
+			console.log(url);
 			var parser = void 0;
 			if (parserType == "DOM") {
 				parser = function parser(responseText) {
@@ -29,7 +30,7 @@ define(function () {
 				xml.onreadystatechange = function () {
 					if (xml.readyState === XMLHttpRequest.DONE && xml.status >= 200 && xml.status < 300) {
 						var data = parser(xml.responseText);
-						console.log(data + " from requestES5");
+						console.log(data);
 						resolve(data);
 					}
 				};

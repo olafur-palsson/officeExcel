@@ -1,5 +1,35 @@
-define(() => {
+define(require => {
+  const $req = require("request")
+  const $alg = require("algorithm")
+  const $render = require("render")
 
+  const stringifyXML = xml => {
+    const strigifier = new XMLSerializer()
+    return strigifier.serializeToString(xml)
+  }
+
+  const xmlToTable = xmlDocument => {
+    const $dh  = require("dataHelper")
+    console.log("here")
+    const settings = $dh.getSettings()
+    console.log("and here")
+    const availability = getAvailabilityObjectsFromSettingsArray(xmlDocument, settings.roomTypes)
+    console.log(availability)
+    const rates        = $alg.getRates(availability)
+    $render.renderRates(rates)
+    $render.renderAvailability(availability)
+  }
+
+  const getAndStoreXML = (url, callback) => {
+    console.log(callback)
+    $req.fromURL(url, "DOM").then(xmlDocument => {
+      const xmlString = stringifyXML(xmlDocument)
+      window.localStorage.setItem("rawXML", xmlString)
+      console.log("uhteoanhue")
+      xmlToTable(xmlDocument)
+      //callback()
+    })
+  }
 
   const getInventoryFromID = (xml, inventoryID) => {
     const inventory = xml.getElementsByTagName("inventoryItem")
@@ -14,6 +44,7 @@ define(() => {
   }
 
   const getAvailabilityObjectsFromSettingsArray = (xml, objectWithArraysOfRoomTypes) => {
+    console.log(xml)
     let returnObject = {}
     let prototypeWithDates = {}
     for(let roomClass in objectWithArraysOfRoomTypes) {
@@ -49,8 +80,11 @@ define(() => {
     return returnObject
   }
 
+
   return {
     getInventory: getInventoryFromID,
-    getAvailabilityObjects: getAvailabilityObjectsFromSettingsArray
+    getAvailabilityObjects: getAvailabilityObjectsFromSettingsArray,
+    getAndStoreXML: getAndStoreXML,
+    stringifyXML: stringifyXML
   }
 })

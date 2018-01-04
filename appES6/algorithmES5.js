@@ -1,4 +1,6 @@
-define(() => {
+define((require) => {
+  const render = require("render")
+
   let settings
   let rateParameters
 
@@ -43,7 +45,8 @@ define(() => {
     return 0
   }
 
-  const getRates = (availabilityInput, settingsInput) => {
+  const getRates = (availabilityInput) => {
+
     let totalObj = {}
     for(let roomClass in availabilityInput) {
       for(let day in availabilityInput[roomClass]) {
@@ -52,7 +55,10 @@ define(() => {
       }
     }
 
-    settings = settingsInput
+    console.log(availabilityInput)
+
+    const settingsString = window.localStorage.getItem("settings")
+    settings = JSON.parse(settingsString)
     rateParameters = settings.rateParameter
 
     const priceFloor      = rateParameters.priceFloor
@@ -102,6 +108,10 @@ define(() => {
     })
 
     return ratesCalculated
+  }
+
+  const groupCalculator = (settingsInput, rates, availability) => {
+    console.log("Hahahahaha")
   }
 
   return {getRates: getRates}

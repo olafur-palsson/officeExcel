@@ -1,6 +1,37 @@
 "use strict";
 
-define(function () {
+define(function (require) {
+  var $req = require("request");
+  var $alg = require("algorithm");
+  var $render = require("render");
+
+  var stringifyXML = function stringifyXML(xml) {
+    var strigifier = new XMLSerializer();
+    return strigifier.serializeToString(xml);
+  };
+
+  var xmlToTable = function xmlToTable(xmlDocument) {
+    var $dh = require("dataHelper");
+    console.log("here");
+    var settings = $dh.getSettings();
+    console.log("and here");
+    var availability = getAvailabilityObjectsFromSettingsArray(xmlDocument, settings.roomTypes);
+    console.log(availability);
+    var rates = $alg.getRates(availability);
+    $render.renderRates(rates);
+    $render.renderAvailability(availability);
+  };
+
+  var getAndStoreXML = function getAndStoreXML(url, callback) {
+    console.log(callback);
+    $req.fromURL(url, "DOM").then(function (xmlDocument) {
+      var xmlString = stringifyXML(xmlDocument);
+      window.localStorage.setItem("rawXML", xmlString);
+      console.log("uhteoanhue");
+      xmlToTable(xmlDocument);
+      //callback()
+    });
+  };
 
   var getInventoryFromID = function getInventoryFromID(xml, inventoryID) {
     var inventory = xml.getElementsByTagName("inventoryItem");
@@ -14,6 +45,7 @@ define(function () {
   };
 
   var getAvailabilityObjectsFromSettingsArray = function getAvailabilityObjectsFromSettingsArray(xml, objectWithArraysOfRoomTypes) {
+    console.log(xml);
     var returnObject = {};
     var prototypeWithDates = {};
     for (var roomClass in objectWithArraysOfRoomTypes) {
@@ -54,7 +86,9 @@ define(function () {
 
   return {
     getInventory: getInventoryFromID,
-    getAvailabilityObjects: getAvailabilityObjectsFromSettingsArray
+    getAvailabilityObjects: getAvailabilityObjectsFromSettingsArray,
+    getAndStoreXML: getAndStoreXML,
+    stringifyXML: stringifyXML
   };
 });
 

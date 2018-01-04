@@ -1,7 +1,7 @@
 {
   "requestAvailability": {
     "URL" : "https://api.roomercloud.net/services/bookingapi/availability1?hotel=HLEI&channelCode=HOT&channelManagerCode=OWN&",
-    "days": 20 
+    "days": 5 
   },
 
   "rateParameter": {

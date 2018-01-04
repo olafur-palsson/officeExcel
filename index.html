@@ -12,12 +12,28 @@
     <link href="https://fonts.googleapis.com/css?family=Roboto+Condensed" rel="stylesheet">
   </head>
   <body class="body">
-    <div class="rates">
+    <button class="refreshData">Refresh Data</button>
+    <div class="rateContainer">
       <h1>Rates</h1>
+      <div class="rates"></div>
     </div>
-    <div class="channelAvailability">
+
+    <div class="channelContainer">
       <h1>Channel availability</h1>
+      <div class="channelAvailability"></div>
     </div>
+    <div class="groupCalc">
+      <h1>Group Calculator</h1>
+      <div class="groupCalc__formContainer">
+        <form class="groupCalc__preForm">
+          Number of separate bookings
+          <input id="numberOfBookings" type="number" name="numberOfBookings">
+          <button class="groupCalc__preFormButton">Tester Button</button>
+        </form>
+      </div>
+    </div>
+
+
 
   </body>
   <script type="text/javascript" data-main="app/config/config" src="res/require.js"></script>
