@@ -2,12 +2,21 @@
 
 define(function (require) {
 
+  var makeError = function makeError(message, error) {
+    var str = message;
+    if (error) str += " | error: " + error;
+    var errorbox = document.querySelector(".errorbox");
+    errorbox.innerHTML = str;
+  };
+
   var removeChildren = function removeChildren(node) {
+
     var clone = node.cloneNode(false);
     node.parentNode.replaceChild(clone, node);
   };
 
   var makeTableFromArray = function makeTableFromArray(array, theaders) {
+
     var table = document.createElement("table");
     if (theaders != undefined) {
       var headerRow = document.createElement("tr");
@@ -19,8 +28,6 @@ define(function (require) {
         table.appendChild(headerRow);
       });
     }
-
-    console.log(array);
 
     if (array[0][0] == undefined) alert("Some function gave me not a table");
     array.forEach(function (key) {
@@ -37,12 +44,14 @@ define(function (require) {
   };
 
   var renderAvailability = function renderAvailability(availabilities) {
+
     var table = getAvailabilityTable(availabilities);
     var availabilityDiv = document.querySelector(".channelAvailability");
     availabilityDiv.appendChild(table);
   };
 
   var renderRates = function renderRates(rates) {
+
     var tableHeaders = ["date", "rates", "availbilities"];
     var rateTable = makeTableFromArray(rates, tableHeaders);
     var rateDiv = document.querySelector(".rates");
@@ -50,6 +59,7 @@ define(function (require) {
   };
 
   var availabilityToTableFormat = function availabilityToTableFormat(object) {
+
     var array = [["date"]];
     var compressedObject = {};
     for (var key in object) {
@@ -58,7 +68,6 @@ define(function (require) {
         compressedObject[date] = [];
       }
     }
-
     for (var _key in object) {
       for (var _date in object[_key]) {
         compressedObject[_date].push(object[_key][_date][0]);
@@ -76,42 +85,45 @@ define(function (require) {
     for (var _date2 in compressedObject) {
       _loop(_date2);
     }
-
     return array;
   };
 
   var getAvailabilityTable = function getAvailabilityTable(availabilities) {
+
     var array = availabilityToTableFormat(availabilities);
-    console.log(array);
     return makeTableFromArray(array);
   };
 
-  var appendInput = function appendInput(div, text, inputType, inputName) {
+  var appendInput = function appendInput(div, text, inputType, inputName, defaultValue) {
+
     var input = document.createElement("input");
     var br = document.createElement("br");
     var textNode = document.createTextNode(text);
 
     input.setAttribute("name", inputName);
     input.setAttribute("type", inputType);
+    input.defaultValue = defaultValue;
     div.appendChild(textNode);
     div.appendChild(input);
     div.appendChild(br);
   };
 
   var createSubForm = function createSubForm(index, roomTypes) {
+
     var superDiv = document.createElement("div");
     superDiv.setAttribute("class", "groupBooking booking" + index);
-    appendInput(superDiv, "date for booking " + index, "date", "date" + index);
-    appendInput(superDiv, "nights for booking " + index, "number", "nights" + index);
+    appendInput(superDiv, "date for booking " + index, "date", "date" + index, "2018-1-1");
+    appendInput(superDiv, "nights for booking " + index, "number", "nights" + index, 1);
 
     for (var key in roomTypes) {
-      appendInput(superDiv, "number of " + roomTypes[key] + " rooms", "number", key + index);
+      appendInput(superDiv, "number of " + roomTypes[key] + " rooms", "number", key + index, 1);
     }
 
     return superDiv;
   };
 
   var createForm = function createForm(numberOfSubforms, roomTypes) {
+
     var form = document.createElement("form");
     form.setAttribute("class", "groupCalc__form");
     for (var i = 1; i <= numberOfSubforms; i++) {
@@ -123,11 +135,12 @@ define(function (require) {
   };
 
   var renderGroupForm = function renderGroupForm(settings) {
+
     var $eb = require("eventBinder");
     var $xmlh = require("xmlHelper");
-    var $dh = require("dataHelper");
+    var $dm = require("dataManager");
     var n = document.querySelector("#numberOfBookings").value;
-    var roomTypes = $dh.getRoomTypes(settings);
+    var roomTypes = $dm.getRoomTypes(settings);
     var form = createForm(n, roomTypes);
     removeChildren(document.querySelector(".groupCalc__formContainer"));
     var groupCalc = document.querySelector(".groupCalc__formContainer");
@@ -139,6 +152,20 @@ define(function (require) {
     $eb.groupFormEvent(button, form);
   };
 
+  var renderGroupPrices = function renderGroupPrices(prices) {
+
+    var container = document.querySelector(".groupCalc__formContainer");
+    removeChildren(container);
+    var $dm = require("dataManager");
+    prices.forEach(function (booking) {
+      var data = $dm.objectToArrayWithHeaders(booking);
+      var table = makeTableFromArray(data.reverse());
+      var container = document.querySelector(".groupCalc__formContainer");
+      container = document.querySelector(".groupCalc__formContainer");
+      container.appendChild(table);
+    });
+  };
+
   return {
     makeTableFromArray: makeTableFromArray,
     availabilityToTableFormat: availabilityToTableFormat,
@@ -148,7 +175,9 @@ define(function (require) {
     renderGroupForm: renderGroupForm,
     renderRates: renderRates,
     renderAvailability: renderAvailability,
-    removeChildren: removeChildren
+    removeChildren: removeChildren,
+    renderGroupPrices: renderGroupPrices,
+    makeError: makeError
   };
 });
 

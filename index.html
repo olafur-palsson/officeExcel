@@ -12,6 +12,10 @@
     <link href="https://fonts.googleapis.com/css?family=Roboto+Condensed" rel="stylesheet">
   </head>
   <body class="body">
+    <div class="errorbox">
+      
+    </div>
+
     <button class="refreshData">Refresh Data</button>
     <div class="rateContainer">
       <h1>Rates</h1>
@@ -22,6 +26,12 @@
       <h1>Channel availability</h1>
       <div class="channelAvailability"></div>
     </div>
+
+    <div class="closeOutsContainer">
+      <h1>Close Outs</h1>
+      <div class="closeOuts"></div>
+    </div>
+
     <div class="groupCalc">
       <h1>Group Calculator</h1>
       <div class="groupCalc__formContainer">
@@ -36,5 +46,19 @@
 
 
   </body>
+  <script src="https://www.gstatic.com/firebasejs/4.8.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/4.8.1/firebase-firestore.js"></script>
+  <script>
+    // Initialize Firebase
+    var config = {
+      apiKey: "AIzaSyAFVrO-ENTJ0-GkB6e5cySyHNvq-6o25fk",
+      authDomain: "officeexcel-71962.firebaseapp.com",
+      databaseURL: "https://officeexcel-71962.firebaseio.com",
+      projectId: "officeexcel-71962",
+      storageBucket: "officeexcel-71962.appspot.com",
+      messagingSenderId: "413961192549"
+    };
+    firebase.initializeApp(config);
+  </script>
   <script type="text/javascript" data-main="app/config/config" src="res/require.js"></script>
 </html>

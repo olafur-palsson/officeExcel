@@ -1,11 +1,21 @@
 define((require) => {
 
+  const makeError = (message, error) => {
+    let str = message
+    if(error) str += (" | error: " + error)
+    const errorbox = document.querySelector(".errorbox")
+    errorbox.innerHTML = str 
+  }
+
   const removeChildren = (node) => {
+
     const clone = node.cloneNode(false)
     node.parentNode.replaceChild(clone, node)
   }
 
+
   const makeTableFromArray = (array, theaders) => {
+
     const table = document.createElement("table")
     if(theaders != undefined) {
       const headerRow = document.createElement("tr")
@@ -18,7 +28,6 @@ define((require) => {
       })
     }
 
-    console.log(array)
 
     if(array[0][0] == undefined) alert("Some function gave me not a table")
     array.forEach((key) => {
@@ -34,20 +43,26 @@ define((require) => {
     return table
   }
 
+
   const renderAvailability = (availabilities) => {
+
     const table           = getAvailabilityTable(availabilities)
     const availabilityDiv = document.querySelector(".channelAvailability")
     availabilityDiv.appendChild(table)
   }
 
+
   const renderRates = (rates) => {
+
     const tableHeaders = ["date", "rates", "availbilities"]
     const rateTable    = makeTableFromArray(rates, tableHeaders)
     const rateDiv      = document.querySelector(".rates")
     rateDiv.appendChild(rateTable)
   }
 
+
   const availabilityToTableFormat = (object) => {
+
     let array = [["date"]]
     let compressedObject = {}
     for(let key in object) {
@@ -56,13 +71,11 @@ define((require) => {
         compressedObject[date] = []
       }
     }
-
     for(let key in object) {
       for(let date in object[key]) {
         compressedObject[date].push(object[key][date][0])
       }
     }
-
     for(let date in compressedObject) {
       let subarray = [date]
       compressedObject[date].forEach(text => {
@@ -70,47 +83,54 @@ define((require) => {
       })
       array.push(subarray)
     }
-
     return array
   }
 
 
   const getAvailabilityTable = (availabilities) => {
+
     const array = availabilityToTableFormat(availabilities)
-    console.log(array)
     return makeTableFromArray(array)
   }
 
-  const appendInput = (div, text, inputType, inputName) => {
+
+  const appendInput = (div, text, inputType, inputName, defaultValue) => {
+
     const input    = document.createElement("input")
     const br       = document.createElement("br")
     const textNode = document.createTextNode(text)
 
     input.setAttribute("name", inputName)
     input.setAttribute("type", inputType)
+    input.defaultValue = defaultValue
     div.appendChild(textNode)
     div.appendChild(input)
     div.appendChild(br)
   }
 
+
   const createSubForm = (index, roomTypes) => {
+
     const superDiv   = document.createElement("div")
     superDiv.setAttribute("class", "groupBooking booking" + index)
-    appendInput(superDiv, "date for booking " + index, "date", "date" + index)
-    appendInput(superDiv, "nights for booking " + index, "number", "nights" + index)
+    appendInput(superDiv, "date for booking " + index, "date", "date" + index, "2018-1-1")
+    appendInput(superDiv, "nights for booking " + index, "number", "nights" + index, 1)
     
     for(let key in roomTypes) {
       appendInput(
         superDiv, 
         "number of " + roomTypes[key] + " rooms",
         "number",
-        key + index)
+        key + index,
+        1)
     }
 
     return superDiv
   }
 
+
   const createForm = (numberOfSubforms, roomTypes) => {
+
     const form = document.createElement("form")
     form.setAttribute("class", "groupCalc__form")
     for(let i = 1; i <= numberOfSubforms; i++) {
@@ -122,11 +142,12 @@ define((require) => {
   }
 
   const renderGroupForm = (settings) => {
+
     const $eb = require("eventBinder")
     const $xmlh = require("xmlHelper")
-    const $dh = require("dataHelper")
+    const $dm = require("dataManager")
     const n = document.querySelector("#numberOfBookings").value
-    const roomTypes = $dh.getRoomTypes(settings)
+    const roomTypes = $dm.getRoomTypes(settings)
     const form = createForm(n, roomTypes)
     removeChildren(document.querySelector(".groupCalc__formContainer"))
     const groupCalc = document.querySelector(".groupCalc__formContainer")
@@ -138,6 +159,23 @@ define((require) => {
     $eb.groupFormEvent(button, form)
   }
 
+
+  const renderGroupPrices = (prices) => {
+
+    let container = document.querySelector(".groupCalc__formContainer")
+    removeChildren(container)
+    const $dm = require("dataManager")
+    prices.forEach(booking => {
+      const data = $dm.objectToArrayWithHeaders(booking)    
+      const table = makeTableFromArray(data.reverse())
+      let container = document.querySelector(".groupCalc__formContainer")
+      container = document.querySelector(".groupCalc__formContainer")
+      container.appendChild(table)
+    })
+  }
+
+  
+
   return {
     makeTableFromArray: makeTableFromArray,
     availabilityToTableFormat: availabilityToTableFormat,
@@ -148,5 +186,7 @@ define((require) => {
     renderRates: renderRates,
     renderAvailability: renderAvailability,
     removeChildren: removeChildren,
+    renderGroupPrices: renderGroupPrices,
+    makeError: makeError,
   }
 })

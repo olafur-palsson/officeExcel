@@ -1,4 +1,6 @@
+
 define(require => {
+  const $db = require("database")
 
   const bindClickEvent = (element, eventFunction) => {
     element.addEventListener("click", (event) => {
@@ -7,10 +9,9 @@ define(require => {
     })
   }
 
+
   const bindPreformButton = () => {
-    console.log("htueta")
-    const $dh = require("dataHelper")
-    const settings = $dh.getSettings()
+    const settings = $db.get("settings")
     const button = document.querySelector(".groupCalc__preFormButton")
     const $render = require("render")
     bindClickEvent(button, () => {
@@ -18,28 +19,33 @@ define(require => {
     })
   }
 
+ 
   const groupFormEvent = (button, groupForm) => {
-    const $dh = require("dataHelper")
+
+    const $alg = require("algorithm")
+    const $dm  = require("dataManager")
+    const $render = require("render")
     bindClickEvent(button, () => {
-      console.log($dh)
-      const data = $dh.getGroupFormDataAsArray(groupForm)
-      console.log(data)
+      const data = $dm.getGroupFormDataAsArray(groupForm)
+      const groupPrices = $alg.calculateGroupPrice(data)
+      $render.renderGroupPrices(groupPrices)
     })
   }
 
   const tokenFunction = () => {
-    console.log("hahaha")
   }
  
   const refreshData = () => {
-    const $dh = require("dataHelper")
+
+    const $dm = require("dataManager")
     const $render = require("render")
     const rateContainer = document.querySelector(".channelAvailability")
     const channelContainer = document.querySelector(".rates")
     $render.removeChildren(rateContainer)
     $render.removeChildren(channelContainer)
-    $dh.refreshData(tokenFunction)
+    $dm.refreshData(tokenFunction)
   }
+
 
 
   return {

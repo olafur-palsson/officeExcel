@@ -2,8 +2,9 @@
 
 define(function (require) {
   var $req = require("request");
-  var $alg = require("algorithm");
   var $render = require("render");
+  var $db = require("database");
+  var settings = $db.get("settings");
 
   var stringifyXML = function stringifyXML(xml) {
     var strigifier = new XMLSerializer();
@@ -11,29 +12,31 @@ define(function (require) {
   };
 
   var xmlToTable = function xmlToTable(xmlDocument) {
-    var $dh = require("dataHelper");
-    console.log("here");
-    var settings = $dh.getSettings();
-    console.log("and here");
+    var $alg = require("algorithm");
+    console.log(xmlDocument);
     var availability = getAvailabilityObjectsFromSettingsArray(xmlDocument, settings.roomTypes);
-    console.log(availability);
+    $db.storeAvailability(availability);
+    console.log($alg);
     var rates = $alg.getRates(availability);
-    $render.renderRates(rates);
-    $render.renderAvailability(availability);
+    return {
+      rates: rates,
+      availability: availability
+    };
   };
 
-  var getAndStoreXML = function getAndStoreXML(url, callback) {
-    console.log(callback);
-    $req.fromURL(url, "DOM").then(function (xmlDocument) {
-      var xmlString = stringifyXML(xmlDocument);
-      window.localStorage.setItem("rawXML", xmlString);
-      console.log("uhteoanhue");
-      xmlToTable(xmlDocument);
-      //callback()
+  var getAndStoreXML = function getAndStoreXML(url) {
+    return new Promise(function (resolve, reject) {
+      $req.fromURL(url, "DOM").then(function (xmlDocument) {
+        var xmlString = stringifyXML(xmlDocument);
+        $db.set("rawXML", xmlString);
+        console.log(xmlDocument);
+        resolve(xmlDocument);
+      });
     });
   };
 
   var getInventoryFromID = function getInventoryFromID(xml, inventoryID) {
+
     var inventory = xml.getElementsByTagName("inventoryItem");
     var returnItem = false;
     Array.from(inventory).forEach(function (item) {
@@ -45,6 +48,7 @@ define(function (require) {
   };
 
   var getAvailabilityObjectsFromSettingsArray = function getAvailabilityObjectsFromSettingsArray(xml, objectWithArraysOfRoomTypes) {
+
     console.log(xml);
     var returnObject = {};
     var prototypeWithDates = {};
@@ -81,6 +85,7 @@ define(function (require) {
     for (var _roomClass in objectWithArraysOfRoomTypes) {
       _loop(_roomClass);
     }
+
     return returnObject;
   };
 
@@ -88,7 +93,8 @@ define(function (require) {
     getInventory: getInventoryFromID,
     getAvailabilityObjects: getAvailabilityObjectsFromSettingsArray,
     getAndStoreXML: getAndStoreXML,
-    stringifyXML: stringifyXML
+    stringifyXML: stringifyXML,
+    xmlToTable: xmlToTable
   };
 });
 

@@ -1,11 +1,20 @@
 "use strict";
 
-requirejs(["request", "dataHelper", "xmlHelper", "algorithm", "render", "eventBinder"], function ($req, $dh, $xmlh, $alg, $render, $eb) {
+requirejs(["request", "dataManager", "xmlHelper", "algorithm", "render", "eventBinder", "database"], function ($req, $dm, $xmlh, $alg, $render, $eb, $db) {
 
-  $dh.refreshData();
+  $db.updateSettingsFromLocal();
+
+  var callback = function callback() {
+    $dm.refreshData();
+    $dm.getCloseOutArrayAndRender();
+  };
+  $db.loadSettings(callback);
+
   var refreshButton = document.querySelector(".refreshData");
   $eb.bindClickEvent(refreshButton, $eb.refreshData);
   $eb.bindPreformButton();
 });
+
+// very nice
 
 //# sourceMappingURL=main.js.map

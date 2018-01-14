@@ -7,9 +7,10 @@
     "eslint": "eslint --fix es6scripts.js",
     "stylelint": "stylelint --fix *.scss scss/*.scss --syntax scss",
     "lint": "npm-run-all --parallel eslint stylelint",
+    "babel1": "babel appES6/databaseES5.js --watch --out-file app/database.js --source-maps",
     "babel2": "babel appES6/eventBinderES5.js --watch --out-file app/eventBinder.js --source-maps",
     "babel3": "babel appES6/mainES5.js --watch --out-file app/main.js --source-maps",
-    "babel4": "babel appES6/dataHelperES5.js --watch --out-file app/dataHelper.js --source-maps",
+    "babel4": "babel appES6/dataManagerES5.js --watch --out-file app/dataManager.js --source-maps",
     "babel5": "babel appES6/requestES5.js --watch --out-file app/request.js --source-maps",
     "babel6": "babel appES6/xmlHelperES5.js --watch --out-file app/xmlHelper.js --source-maps",
     "babel7": "babel appES6/algorithmES5.js --watch --out-file app/algorithm.js --source-maps",
@@ -17,7 +18,7 @@
     "browser-sync": "browser-sync start --server --files index.html styles.css script-compiled.js",
     "sass": "node-sass --source-map-embed --watch styles.scss styles.css",
     "sass2": "node-sass --source-map-embed styles.scss styles.css",
-    "dev": "npm-run-all --parallel sass babel2 babel3 babel4 babel5 babel6 babel7 babel8 browser-sync"
+    "dev": "npm-run-all --parallel sass babel1 babel2 babel3 babel4 babel5 babel6 babel7 babel8 browser-sync"
   },
   "repository": {
     "type": "git",

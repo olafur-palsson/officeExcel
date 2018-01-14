@@ -1,6 +1,7 @@
 "use strict";
 
 define(function (require) {
+  var $db = require("database");
 
   var bindClickEvent = function bindClickEvent(element, eventFunction) {
     element.addEventListener("click", function (event) {
@@ -10,9 +11,7 @@ define(function (require) {
   };
 
   var bindPreformButton = function bindPreformButton() {
-    console.log("htueta");
-    var $dh = require("dataHelper");
-    var settings = $dh.getSettings();
+    var settings = $db.get("settings");
     var button = document.querySelector(".groupCalc__preFormButton");
     var $render = require("render");
     bindClickEvent(button, function () {
@@ -21,26 +20,28 @@ define(function (require) {
   };
 
   var groupFormEvent = function groupFormEvent(button, groupForm) {
-    var $dh = require("dataHelper");
+
+    var $alg = require("algorithm");
+    var $dm = require("dataManager");
+    var $render = require("render");
     bindClickEvent(button, function () {
-      console.log($dh);
-      var data = $dh.getGroupFormDataAsArray(groupForm);
-      console.log(data);
+      var data = $dm.getGroupFormDataAsArray(groupForm);
+      var groupPrices = $alg.calculateGroupPrice(data);
+      $render.renderGroupPrices(groupPrices);
     });
   };
 
-  var tokenFunction = function tokenFunction() {
-    console.log("hahaha");
-  };
+  var tokenFunction = function tokenFunction() {};
 
   var refreshData = function refreshData() {
-    var $dh = require("dataHelper");
+
+    var $dm = require("dataManager");
     var $render = require("render");
     var rateContainer = document.querySelector(".channelAvailability");
     var channelContainer = document.querySelector(".rates");
     $render.removeChildren(rateContainer);
     $render.removeChildren(channelContainer);
-    $dh.refreshData(tokenFunction);
+    $dm.refreshData(tokenFunction);
   };
 
   return {

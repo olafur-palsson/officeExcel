@@ -1,6 +1,6 @@
-define((require) => {
-  const render = require("render")
 
+define((require) => {
+  const $db = require("database")
   let settings
   let rateParameters
 
@@ -8,11 +8,14 @@ define((require) => {
       const weekendBonus = rateParameters.weekendWeight
       const day = date.getDay()
       if(day == 4) return weekendBonus * 0.5
-      if(day == 6 || day == 5) return weekendBonus
+      if(day == 6 || day == 5) 
+
+        return weekendBonus
       return 0
   }
 
   const seasonalValue = date => {
+
     const seasonalBonus = rateParameters.seasonalWeight
     const month = date.getMonth()
     const tourists = settings.numberOfTouristsJanIs0
@@ -23,11 +26,11 @@ define((require) => {
       if(parseInt(tourists[key]) > max) max = tourists[key]
       if(parseInt(tourists[key]) < min) min = tourists[key]
     }
-
     const ratio = (tourists[month] - min) / (max - min) 
 
     return ratio * seasonalBonus
   }
+
 
   const superDayValue = date => {
     
@@ -39,11 +42,53 @@ define((require) => {
     const superdays = settings.superDays
     const weight = rateParameters.superDayWeight
     for(let key in superdays) {
-      if(key == dateString) return superdays[key] * weight
-    }
+      if(key == dateString) 
 
+        return superdays[key] * weight
+    }
     return 0
   }
+
+
+  const calculateDay = (dateAndAvailability) => {
+
+    settings = $db.get("settings")
+    rateParameters = settings.rateParameter
+    const _rP = rateParameters
+
+    const dateString     = dateAndAvailability[0]
+    const availability   = parseInt(dateAndAvailability[1])
+    const dateObject     = new Date(dateString)
+    const now            = Date.now()
+
+    const daysUntilDate  = 1 + Math.floor((dateObject - now)/1000/60/60/24);
+    const expectedRooms  = Math.min(Math.pow(daysUntilDate/180, 0.7), 1) //
+    const weekendBonus   = weekendValue(dateObject)
+    const seasonalBonus  = seasonalValue(dateObject)
+    const occupancy      = availability/47
+    const occupancyBonus = (1-occupancy) * _rP.occupancyWeight //
+    const futureBonus    = (1-expectedRooms)*_rP.futureWeight //
+    const lastRoomsBonus = Math.pow(1-occupancy, 8)*_rP.occupancyWeight*1.5 //
+    const sellOffRatio   = Math.min(Math.pow((187 - daysUntilDate)/180, 6.5), 1) //
+    const sellOffDisc    = sellOffRatio * _rP.sellOff //
+    const superDayBonus  = superDayValue(dateObject) //
+
+    //Self explanatory
+    const rateShift   = occupancyBonus - futureBonus
+    //Basic Rate
+    let algorithmRate = _rP.priceFloor + rateShift + seasonalBonus
+    //Add modifiers for weekends, newYears and other high demand days
+    algorithmRate += weekendBonus + superDayBonus
+    //Add edge cases in case of surplus or shortage
+    algorithmRate += lastRoomsBonus - sellOffDisc
+    //Lowest price a room should be sold at
+    const absFloorPlus   = _rP.absoluteFloor + weekendBonus
+    //Compare lowest rate vs algorithm
+    const finalRate      = Math.max(absFloorPlus, algorithmRate)
+
+    return [dateString, finalRate, availability]
+  }
+
 
   const getRates = (availabilityInput) => {
 
@@ -55,10 +100,7 @@ define((require) => {
       }
     }
 
-    console.log(availabilityInput)
-
-    const settingsString = window.localStorage.getItem("settings")
-    settings = JSON.parse(settingsString)
+    settings = $db.get("settings")
     rateParameters = settings.rateParameter
 
     const priceFloor      = rateParameters.priceFloor
@@ -75,44 +117,107 @@ define((require) => {
       total[i] = [day, totalObj[day]]
       i++
     }
-
-    console.log(total)
-
-    const ratesCalculated  = total.map((dateAndAvailability) => {
-      const dateString     = dateAndAvailability[0]
-      const availability   = parseInt(dateAndAvailability[1])
-      const dateObject     = new Date(dateString)
-      const now            = Date.now()
-      const daysUntilDate  = 1 + Math.floor((dateObject - now)/1000/60/60/24);
-      const month          = dateObject.getMonth()
-      const weekendBonus   = weekendValue(dateObject)
-
-      const seasonalBonus  = seasonalValue(dateObject)
-      const occupancy      = availability/47
-      const occupancyBonus = (1-occupancy) * occupancyWeight //
-      const expectedRooms  = Math.min(Math.pow(daysUntilDate/180, 0.7), 1) //
-      const futureBonus    = (1-expectedRooms)*futureWeight //
-      const lastRoomsBonus = Math.pow(1-occupancy, 8)*occupancyWeight*1.5 //
-      const sellOffRatio   = Math.min(Math.pow((187 - daysUntilDate)/180, 6.5), 1) //
-      const sellOffBonus   = sellOffRatio * sellOffWeight //
-      const superDayBonus  = superDayValue(dateObject)
-
-      const rateShift      = occupancyBonus - futureBonus //
-      const baseRate       = priceFloor + rateShift + seasonalBonus /* + SUPERDAY BONUS */
-      const baseRatePlus   = baseRate - sellOffBonus + weekendBonus + lastRoomsBonus + superDayBonus
-      const absFloorPlus   = absPriceFloor + weekendBonus
-
-      const finalRate      = Math.max(absFloorPlus, baseRatePlus)
-
-      return [dateString, finalRate, availability]
+    const ratesCalculated  = total.map(dateAndAvailability => {
+      return calculateDay(dateAndAvailability)
     })
 
     return ratesCalculated
   }
 
-  const groupCalculator = (settingsInput, rates, availability) => {
-    console.log("Hahahahaha")
+
+  const calculateContractDay = (dateAndAvailability) => {
+    const contract = $db.get("settings").retailContract
+    const $dm      = require("dataManager")
+    const date = dateAndAvailability[0]
+    const availability = dateAndAvailability[1]
+
+    let minimum = Infinity
+    let applicableDate
+    for(let key in contract) {
+      const difference = $dm.daysBetweenDatesStringFormat(date, key)
+      if(difference < minimum && difference > 0) {  
+  
+        minimum = difference
+        applicableDate = key
+      }
+    }
+    const applicableRate = contract[applicableDate]['dbl']
+
+    return [date, applicableRate]
   }
 
-  return {getRates: getRates}
+
+  const calculateContractPrices = (bookings) => {
+    console.log("contracts")
+    return calculateBooking(bookings, calculateContractDay)
+  }
+
+
+  const calculateAlgorithmPrices = (bookings) => {
+    console.log("algorithm")
+    return calculateBooking(bookings, calculateDay)
+  }
+
+
+  const calculateBooking = (bookings, calculator) => {
+
+    const $dm = require("dataManager")
+    let prices = []
+
+    bookings.forEach((booking, index) => {
+      const $dm = require("dataManager")
+      let sum = 0
+      let date = booking[0]
+      const nights = booking[1]
+      const bookingInfo = {}
+
+      for(let i = 0; i < booking[1]; i++) {
+        console.log(date)
+        const availability = $db.getAvailabilityForDate("total", date)
+        if(availability == undefined) {
+          const $render = require("render")
+          console.log($render)
+          $render.makeError("Most likely wrong date in the booking. Please check.")
+        }
+        console.log(availability)
+        const rate = calculator([date, availability])[1]
+        console.log(rate)
+        date = $dm.addOneDayToDateWithHyphens(date)
+        sum += rate
+      }
+
+      bookingInfo["rate"] = sum / nights
+      bookingInfo["total"] = sum
+      bookingInfo["name"] = "Booking " + (index + 1)
+
+      prices.push(bookingInfo)
+    })
+
+    return prices
+  }
+
+
+  const calculateGroupPrice = (bookings) => {
+
+    const algorithmBookings = calculateAlgorithmPrices(bookings)
+    const contractBookings  = calculateContractPrices(bookings)
+
+    let finalGroupPrices = algorithmBookings
+    contractBookings.forEach((booking, index) => {
+      if(booking["rate"] > algorithmBookings[index]["rate"])
+        finalGroupPrices[index] = booking
+    })
+    return finalGroupPrices
+  }
+
+
+
+  return {
+    getRates: getRates,
+    calculateGroupPrice: calculateGroupPrice,
+    calculateContractPrices: calculateContractPrices,
+    calculateAlgorithmPrices: calculateAlgorithmPrices,
+    calculateDay: calculateDay,
+    calculateContractDay: calculateContractDay
+  }
 })

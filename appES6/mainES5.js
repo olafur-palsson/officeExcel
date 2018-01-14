@@ -1,10 +1,18 @@
 
-requirejs(["request", "dataHelper", "xmlHelper", "algorithm", "render", "eventBinder"], 
-          ( $req,     $dh,          $xmlh,       $alg,        $render,  $eb) => {
+requirejs(["request", "dataManager", "xmlHelper", "algorithm", "render", "eventBinder", "database"], 
+          ( $req,     $dm,          $xmlh,       $alg,        $render,  $eb,           $db       ) => {
 
-  $dh.refreshData()
+  $db.updateSettingsFromLocal()
+
+  const callback = () => {
+    $dm.refreshData()
+    $dm.getCloseOutArrayAndRender()
+  }
+  $db.loadSettings(callback)
+  
   const refreshButton = document.querySelector(".refreshData")
   $eb.bindClickEvent(refreshButton, $eb.refreshData)
   $eb.bindPreformButton()
-
 })
+
+// very nice
