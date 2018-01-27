@@ -2,6 +2,7 @@
 
 define(function (require) {
   var $db = require("database");
+  var $dh = require("dateHelper");
   var settings = void 0;
   var rateParameters = void 0;
 
@@ -127,9 +128,8 @@ define(function (require) {
     var minimum = Infinity;
     var applicableDate = void 0;
     for (var key in contract) {
-      var difference = $dm.daysBetweenDatesStringFormat(date, key);
+      var difference = $dh.daysBetweenDatesStringFormat(date, key);
       if (difference < minimum && difference > 0) {
-
         minimum = difference;
         applicableDate = key;
       }
@@ -165,14 +165,12 @@ define(function (require) {
         console.log(date);
         var availability = $db.getAvailabilityForDate("total", date);
         if (availability == undefined) {
-          var $render = require("render");
-          console.log($render);
-          $render.makeError("Most likely wrong date in the booking. Please check.");
+          $db.createError("Most likely wrong date in the booking. Please check.");
         }
         console.log(availability);
         var rate = calculator([date, availability])[1];
         console.log(rate);
-        date = $dm.addOneDayToDateWithHyphens(date);
+        date = $dh.addOneDayToDateWithHyphens(date);
         sum += rate;
       }
 

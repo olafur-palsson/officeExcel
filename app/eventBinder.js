@@ -1,55 +1,59 @@
-"use strict";
+/*
+define(require => {
+  const $make = require("make")
+  const $db   = require("database")
 
-define(function (require) {
-  var $db = require("database");
+  const bindClickEvent = (element, eventFunction) => {
+    element.addEventListener("click", (event) => {
+      event.preventDefault()
+      eventFunction()
+    })
+  }
 
-  var bindClickEvent = function bindClickEvent(element, eventFunction) {
-    element.addEventListener("click", function (event) {
-      event.preventDefault();
-      eventFunction();
-    });
-  };
 
-  var bindPreformButton = function bindPreformButton() {
-    var settings = $db.get("settings");
-    var button = document.querySelector(".groupCalc__preFormButton");
-    var $render = require("render");
-    bindClickEvent(button, function () {
-      $render.renderGroupForm(settings);
-    });
-  };
+  const bindPreformButton = () => {
+    const settings = $db.get("settings")
+    const button = document.querySelector(".groupCalc__preFormButton")
+    const $render = require("render")
+    bindClickEvent(button, () => {
+      $render.renderGroupForm(settings)
+    })
+  }
 
-  var groupFormEvent = function groupFormEvent(button, groupForm) {
+ 
+  const groupFormEvent = (button, groupForm) => {
 
-    var $alg = require("algorithm");
-    var $dm = require("dataManager");
-    var $render = require("render");
-    bindClickEvent(button, function () {
-      var data = $dm.getGroupFormDataAsArray(groupForm);
-      var groupPrices = $alg.calculateGroupPrice(data);
-      $render.renderGroupPrices(groupPrices);
-    });
-  };
+    const $alg = require("algorithm")
+    const $dm  = require("dataManager")
+    const $render = require("render")
+    bindClickEvent(button, () => {
+      const data = $dm.getGroupFormDataAsArray(groupForm)
+      const groupPrices = $alg.calculateGroupPrice(data)
+      $render.renderGroupPrices(groupPrices)
+    })
+  }
 
-  var tokenFunction = function tokenFunction() {};
+  const tokenFunction = () => {
+  }
+ 
+  const refreshData = () => {
 
-  var refreshData = function refreshData() {
-
-    var $dm = require("dataManager");
-    var $render = require("render");
-    var rateContainer = document.querySelector(".channelAvailability");
-    var channelContainer = document.querySelector(".rates");
-    $render.removeChildren(rateContainer);
-    $render.removeChildren(channelContainer);
-    $dm.refreshData(tokenFunction);
-  };
+    const $dm = require("dataManager")
+    const $render = require("render")
+    const rateContainer = document.querySelector(".channelAvailability")
+    const channelContainer = document.querySelector(".rates")
+    $make.childless(rateContainer)
+    $make.childless(channelContainer)
+    $dm.refreshData(tokenFunction)
+  }
 
   return {
     bindClickEvent: bindClickEvent,
     bindPreformButton: bindPreformButton,
-    groupFormEvent: groupFormEvent,
-    refreshData: refreshData
-  };
-});
+    groupFormEvent: groupFormEvent, 
+    refreshData: refreshData,
+  }
+})*/
+"use strict";
 
 //# sourceMappingURL=eventBinder.js.map

@@ -1,117 +1,48 @@
 define((require) => {
-
-  const makeError = (message, error) => {
-    let str = message
-    if(error) str += (" | error: " + error)
-    const errorbox = document.querySelector(".errorbox")
-    errorbox.innerHTML = str 
-  }
-
-  const removeChildren = (node) => {
-
-    const clone = node.cloneNode(false)
-    node.parentNode.replaceChild(clone, node)
-  }
+  const $make = require("make")
+  const $dm   = require("dataManager")
 
 
-  const makeTableFromArray = (array, theaders) => {
-
-    const table = document.createElement("table")
-    if(theaders != undefined) {
-      const headerRow = document.createElement("tr")
-      theaders.forEach((text) => {
-        const textNode = document.createTextNode(text)
-        const td       = document.createElement("td")
-        td       .appendChild(textNode)
-        headerRow.appendChild(td)
-        table.appendChild(headerRow)
-      })
-    }
-
-
-    if(array[0][0] == undefined) alert("Some function gave me not a table")
-    array.forEach((key) => {
-      const tr = document.createElement("tr")
-      key.forEach((item) => {
-        const td  = document.createElement("td")
-        const txt = document.createTextNode(item)
-        td.appendChild(txt)
-        tr.appendChild(td)
-      })
-      table.appendChild(tr)
-    })
-    return table
-  }
-
-
-  const renderAvailability = (availabilities) => {
+  const availability = (availabilities) => {
 
     const table           = getAvailabilityTable(availabilities)
     const availabilityDiv = document.querySelector(".channelAvailability")
     availabilityDiv.appendChild(table)
   }
 
+  const tableFromArray = (table, headers) => $make.tableFromArray(table, headers)
 
-  const renderRates = (rates) => {
+  const preFormButton = () => {
+    const settings = $dm.get("settings")
+    return $make.button("Make Form", () => { groupForm(settings) }, "groupCalc__preFormButton")
+  }
+
+  const rates = (rates) => {
 
     const tableHeaders = ["date", "rates", "availbilities"]
-    const rateTable    = makeTableFromArray(rates, tableHeaders)
-    const rateDiv      = document.querySelector(".rates")
-    rateDiv.appendChild(rateTable)
+    const rateTable    = $make.tableFromArray(rates, tableHeaders)
+    return rateTable
   }
-
-
-  const availabilityToTableFormat = (object) => {
-
-    let array = [["date"]]
-    let compressedObject = {}
-    for(let key in object) {
-      array[0].push(key)
-      for(let date in object[key]) {
-        compressedObject[date] = []
-      }
-    }
-    for(let key in object) {
-      for(let date in object[key]) {
-        compressedObject[date].push(object[key][date][0])
-      }
-    }
-    for(let date in compressedObject) {
-      let subarray = [date]
-      compressedObject[date].forEach(text => {
-        subarray.push(text)
-      })
-      array.push(subarray)
-    }
-    return array
-  }
-
 
   const getAvailabilityTable = (availabilities) => {
-
-    const array = availabilityToTableFormat(availabilities)
-    return makeTableFromArray(array)
+    const array = $dm.availabilityToTableFormat(availabilities)
+    return $make.tableFromArray(array)
   }
-
 
   const appendInput = (div, text, inputType, inputName, defaultValue) => {
 
-    const input    = document.createElement("input")
-    const br       = document.createElement("br")
-    const textNode = document.createTextNode(text)
+    const input    = $make.input(inputType, defaultValue, null)
+    const br       = $make.el("br")
+    const textNode = $make.txt(text)
 
-    input.setAttribute("name", inputName)
-    input.setAttribute("type", inputType)
-    input.defaultValue = defaultValue
     div.appendChild(textNode)
     div.appendChild(input)
     div.appendChild(br)
   }
 
-
   const createSubForm = (index, roomTypes) => {
 
-    const superDiv   = document.createElement("div")
+    const superDiv   = $make.el("div")
     superDiv.setAttribute("class", "groupBooking booking" + index)
     appendInput(superDiv, "date for booking " + index, "date", "date" + index, "2018-1-1")
     appendInput(superDiv, "nights for booking " + index, "number", "nights" + index, 1)
@@ -128,10 +59,9 @@ define((require) => {
     return superDiv
   }
 
-
   const createForm = (numberOfSubforms, roomTypes) => {
 
-    const form = document.createElement("form")
+    const form = $make.el("form")
     form.setAttribute("class", "groupCalc__form")
     for(let i = 1; i <= numberOfSubforms; i++) {
       const div = createSubForm(i, roomTypes)
@@ -141,52 +71,156 @@ define((require) => {
     return form
   }
 
-  const renderGroupForm = (settings) => {
 
-    const $eb = require("eventBinder")
-    const $xmlh = require("xmlHelper")
-    const $dm = require("dataManager")
+  const groupFormEvent = (form) => {
+    const prices = $dm.getPricesFromForm(form)
+    groupPrices(prices)
+  }
+
+  const groupForm = (settings) => {
+
     const n = document.querySelector("#numberOfBookings").value
     const roomTypes = $dm.getRoomTypes(settings)
     const form = createForm(n, roomTypes)
-    removeChildren(document.querySelector(".groupCalc__formContainer"))
+    $make.childless(document.querySelector(".groupCalc__formContainer"))
     const groupCalc = document.querySelector(".groupCalc__formContainer")
-    const button    = document.createElement("button")
-    button.setAttribute("class", "groupCalc__calculate")
-    button.appendChild(document.createTextNode("Calculate"))
+    const button    = $make.button("Calculate", () => { groupFormEvent(form) } ,"groupCalc__calculate")
+    console.trace("here")
     form.appendChild(button)
     groupCalc.appendChild(form)
-    $eb.groupFormEvent(button, form)
   }
 
-
-  const renderGroupPrices = (prices) => {
+  const groupPrices = (prices) => {
 
     let container = document.querySelector(".groupCalc__formContainer")
-    removeChildren(container)
+    $make.childless(container)
     const $dm = require("dataManager")
     prices.forEach(booking => {
       const data = $dm.objectToArrayWithHeaders(booking)    
-      const table = makeTableFromArray(data.reverse())
+      const table = $make.tableFromArray(data.reverse())
       let container = document.querySelector(".groupCalc__formContainer")
       container = document.querySelector(".groupCalc__formContainer")
       container.appendChild(table)
     })
   }
 
-  
+  const flatObjectFromDB = (object, objectName, className) => {
+    console.log("This is coming " + objectName)
+    const container   = $make.el("div")
+    const heading     = $make.el("h2")
+    const headingText = $make.txt(objectName)
+
+    container.appendChild(heading)
+    heading.appendChild(headingText)
+
+    for(let key in object) {
+      let text = key
+      text += ": "
+      text += object[key]
+
+      const textNode = $make.txt(text)
+      const input    = $make.el("input")
+      const div      = $make.el("div")
+      div.appendChild(textNode)
+      div.appendChild(input)
+      input.dataset.key = key
+      container.appendChild(div)
+    }
+
+    const button = $make.button("Upload changes")
+    container.appendChild(button)
+
+    $eb.bindClickEvent(button, () => {
+      const inputs = Array.from(container.querySelectorAll("input"))
+      inputs.forEach(input => {
+        const key   = input.dataset.key
+        const value = parseInt(input.value)
+        console.log(value)
+        if(value)
+          object[key] = value
+      })
+      let settings = $dm.get("settings")
+      console.log(object)
+      settings[objectName] = object
+      $dm.uploadSettings(settings)
+    })
+
+    const close = $make.button("Close", () => {
+      $make.childless(container)
+    })
+
+    container.appendChild(close)
+
+    return container
+  }
+
+  const roomTypeEditor = (object, objectName) => {
+    const container = $make.el("div")
+    const heading = $make.heading(objectName)
+
+    for(let key in object) {
+      const ul = $make.el("ul")
+
+      object[key].forEach(item => {
+        $make.roomTypeListItem(item, ul)
+      })
+      const input = $make.input("text")
+      const btn   = $make.button("Add to list", () => {
+        $make.roomTypeListItem(input.value, ul)
+      })
+      container.appendChild($make.heading(key))
+      container.appendChild(ul)
+    }
+
+    const btn = $make.button("Upload settings", () => {
+      $dm.uploadRoomTypes(container)
+    })
+
+    return container
+  }
+
+  const contractEditor = (object, objectName) => {
+    const container = $make.el("div")
+    const heading = $make.el("h2")
+    heading.appendChild($make.txt(objectName))
+    container.appendChild(heading)
+
+    for(let key in object) {
+      container.appendChild(flatObjectFromDB(object[key], key))
+    }
+    return container
+  }
+
+  const displaySettingsFor = key => {
+    console.log(key)
+    const settings = $dm.get("settings")
+    let editor;
+
+    switch(key) {
+      case "retailContract":  editor = contractEditor(settings[key], key); break;
+      case "roomTypes":       editor = roomTypeEditor(settings[key], key); break;
+      default:                editor = flatObjectFromDB(settings[key], key)
+    }
+
+    console.log(editor)
+
+    const settingsWindow = document.querySelector(".settingsWindow")
+    settingsWindow.appendChild(editor)
+  }
+
+
 
   return {
-    makeTableFromArray: makeTableFromArray,
-    availabilityToTableFormat: availabilityToTableFormat,
     getAvailabilityTable: getAvailabilityTable,
     createSubForm: createSubForm,
     createForm: createForm,
-    renderGroupForm: renderGroupForm,
-    renderRates: renderRates,
-    renderAvailability: renderAvailability,
-    removeChildren: removeChildren,
-    renderGroupPrices: renderGroupPrices,
-    makeError: makeError,
+    groupForm: groupForm,
+    rates: rates,
+    availability: availability,
+    groupPrices: groupPrices,
+    flatObjectFromDB: flatObjectFromDB,
+    displaySettingsFor: displaySettingsFor,
+    tableFromArray: tableFromArray,
+    preFormButton: preFormButton,
   }
 })

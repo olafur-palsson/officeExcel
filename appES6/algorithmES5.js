@@ -1,6 +1,7 @@
 
 define((require) => {
   const $db = require("database")
+  const $dh = require("dateHelper")
   let settings
   let rateParameters
 
@@ -134,9 +135,8 @@ define((require) => {
     let minimum = Infinity
     let applicableDate
     for(let key in contract) {
-      const difference = $dm.daysBetweenDatesStringFormat(date, key)
+      const difference = $dh.daysBetweenDatesStringFormat(date, key)
       if(difference < minimum && difference > 0) {  
-  
         minimum = difference
         applicableDate = key
       }
@@ -175,14 +175,12 @@ define((require) => {
         console.log(date)
         const availability = $db.getAvailabilityForDate("total", date)
         if(availability == undefined) {
-          const $render = require("render")
-          console.log($render)
-          $render.makeError("Most likely wrong date in the booking. Please check.")
+          $db.createError("Most likely wrong date in the booking. Please check.")
         }
         console.log(availability)
         const rate = calculator([date, availability])[1]
         console.log(rate)
-        date = $dm.addOneDayToDateWithHyphens(date)
+        date = $dh.addOneDayToDateWithHyphens(date)
         sum += rate
       }
 

@@ -1,10 +1,11 @@
 "use strict";
 
 define(function (require) {
+  var $db = require("database");
   var $make = require("make");
   var $dm = require("dataManager");
 
-  var availability = function availability(availabilities) {
+  var renderAvailability = function renderAvailability(availabilities) {
 
     var table = getAvailabilityTable(availabilities);
     var availabilityDiv = document.querySelector(".channelAvailability");
@@ -12,24 +13,19 @@ define(function (require) {
   };
 
   var tableFromArray = function tableFromArray(table, headers) {
-    return $make.tableFromArray(table, headers);
+    $make.tableFromArray(table, headers);
   };
 
-  var preFormButton = function preFormButton() {
-    var settings = $dm.get("settings");
-    return $make.button("Make Form", function () {
-      groupForm(settings);
-    }, "groupCalc__preFormButton");
-  };
-
-  var rates = function rates(_rates) {
+  var renderRates = function renderRates(rates) {
 
     var tableHeaders = ["date", "rates", "availbilities"];
-    var rateTable = $make.tableFromArray(_rates, tableHeaders);
-    return rateTable;
+    var rateTable = $make.tableFromArray(rates, tableHeaders);
+    var rateDiv = document.querySelector(".rates");
+    rateDiv.appendChild(rateTable);
   };
 
   var getAvailabilityTable = function getAvailabilityTable(availabilities) {
+
     var array = $dm.availabilityToTableFormat(availabilities);
     return $make.tableFromArray(array);
   };
@@ -71,27 +67,23 @@ define(function (require) {
     return form;
   };
 
-  var groupFormEvent = function groupFormEvent(form) {
-    var prices = $dm.getPricesFromForm(form);
-    groupPrices(prices);
-  };
+  var renderGroupForm = function renderGroupForm(settings) {
 
-  var groupForm = function groupForm(settings) {
-
+    var $eb = require("eventBinder");
     var n = document.querySelector("#numberOfBookings").value;
     var roomTypes = $dm.getRoomTypes(settings);
     var form = createForm(n, roomTypes);
     $make.childless(document.querySelector(".groupCalc__formContainer"));
     var groupCalc = document.querySelector(".groupCalc__formContainer");
-    var button = $make.button("Calculate", function () {
-      groupFormEvent(form);
-    }, "groupCalc__calculate");
-    console.trace("here");
+    var button = $make.el("button");
+    button.setAttribute("class", "groupCalc__calculate");
+    button.appendChild($make.txt("Calculate"));
     form.appendChild(button);
     groupCalc.appendChild(form);
+    $eb.groupFormEvent(button, form);
   };
 
-  var groupPrices = function groupPrices(prices) {
+  var renderGroupPrices = function renderGroupPrices(prices) {
 
     var container = document.querySelector(".groupCalc__formContainer");
     $make.childless(container);
@@ -105,7 +97,7 @@ define(function (require) {
     });
   };
 
-  var flatObjectFromDB = function flatObjectFromDB(object, objectName, className) {
+  var renderFlatObjectFromDB = function renderFlatObjectFromDB(object, objectName, className) {
     console.log("This is coming " + objectName);
     var container = $make.el("div");
     var heading = $make.el("h2");
@@ -130,6 +122,7 @@ define(function (require) {
 
     var button = $make.button("Upload changes");
     container.appendChild(button);
+    var $eb = require("eventBinder");
 
     $eb.bindClickEvent(button, function () {
       var inputs = Array.from(container.querySelectorAll("input"));
@@ -139,10 +132,11 @@ define(function (require) {
         console.log(value);
         if (value) object[key] = value;
       });
-      var settings = $dm.get("settings");
+      var $db = require("database");
+      var settings = $db.get("settings");
       console.log(object);
       settings[objectName] = object;
-      $dm.uploadSettings(settings);
+      $db.uploadSettings(settings);
     });
 
     var close = $make.button("Close", function () {
@@ -177,7 +171,7 @@ define(function (require) {
     }
 
     var btn = $make.button("Upload settings", function () {
-      $dm.uploadRoomTypes(container);
+      $db.uploadRoomTypes(container);
     });
 
     return container;
@@ -190,14 +184,14 @@ define(function (require) {
     container.appendChild(heading);
 
     for (var key in object) {
-      container.appendChild(flatObjectFromDB(object[key], key));
+      container.appendChild(renderFlatObjectFromDB(object[key], key));
     }
     return container;
   };
 
   var displaySettingsFor = function displaySettingsFor(key) {
     console.log(key);
-    var settings = $dm.get("settings");
+    var settings = $db.get("settings");
     var editor = void 0;
 
     switch (key) {
@@ -206,7 +200,7 @@ define(function (require) {
       case "roomTypes":
         editor = roomTypeEditor(settings[key], key);break;
       default:
-        editor = flatObjectFromDB(settings[key], key);
+        editor = renderFlatObjectFromDB(settings[key], key);
     }
 
     console.log(editor);
@@ -219,15 +213,13 @@ define(function (require) {
     getAvailabilityTable: getAvailabilityTable,
     createSubForm: createSubForm,
     createForm: createForm,
-    groupForm: groupForm,
-    rates: rates,
-    availability: availability,
-    groupPrices: groupPrices,
-    flatObjectFromDB: flatObjectFromDB,
-    displaySettingsFor: displaySettingsFor,
-    tableFromArray: tableFromArray,
-    preFormButton: preFormButton
+    renderGroupForm: renderGroupForm,
+    renderRates: renderRates,
+    renderAvailability: renderAvailability,
+    renderGroupPrices: renderGroupPrices,
+    renderFlatObjectFromDB: renderFlatObjectFromDB,
+    displaySettingsFor: displaySettingsFor
   };
 });
 
-//# sourceMappingURL=render.js.map
+//# sourceMappingURL=build.js.map

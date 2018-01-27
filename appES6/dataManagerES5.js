@@ -1,11 +1,22 @@
 
 define(require => {
+  const $make = require("make")
 	const DAY_IN_MS = 86400000
 	const $req  = require("request")
+  const $dh   = require("dateHelper")
 	const $xmlh = require("xmlHelper")
 	const $db   = require("database")
-	const $render = require("render")
+  const $alg  = require("algorithm")
 
+  const get = key => $db.get(key)
+
+  const set = (key, data) => {
+    $db.set(key, data)
+  }
+
+  const uploadSettings = settings => {
+    $db.uploadSettings(settings)
+  }
 
 	const getDateURLrequestString = () => {
 
@@ -19,7 +30,7 @@ define(require => {
 		string += "arrivalDate="   + today.getUTCFullYear() + "-" + (today.getUTCMonth() + 1) + "-" + today.getUTCDate()
 		string += "&"
 		string += "departureDate=" + nDaysInAdvance.getUTCFullYear() + "-" + (nDaysInAdvance.getUTCMonth() + 1) + "-" + nDaysInAdvance.getUTCDate()
-		
+		$db.set("requestString", string)
 		return string
 	}
 
@@ -35,49 +46,35 @@ define(require => {
 	}
 
 
-	const stringToDate = dateString => {
+  const availabilityToTableFormat = (object) => {
 
-		const array = dateString.split("-")
-		const y = array[0]
-		const m = parseInt(array[1]) + 1
-		const d = array[2]
-		const date = new Date(y, m, d)
-
-		return date
-	}
-
-
-	const dateToString = dateObject => {
-		const y = dateObject.getUTCFullYear()
-		const m = formatNumber(dateObject.getUTCMonth() -1)
-		const d = formatNumber(dateObject.getUTCDate()) 
-		const dateArray = [y, m, d]
-		return dateArray.join("-")
-	}
-
-
-	const formatNumber = (number) => {
-		let string = "" + number
-		if(number < 10) string = "0" + string;
-		return string
-	}
+    let array = [["date"]]
+    let compressedObject = {}
+    for(let key in object) {
+      array[0].push(key)
+      for(let date in object[key]) {
+        compressedObject[date] = []
+      }
+    }
+    for(let key in object) {
+      for(let date in object[key]) {
+        compressedObject[date].push(object[key][date][0])
+      }
+    }
+    for(let date in compressedObject) {
+      let subarray = [date]
+      compressedObject[date].forEach(text => {
+        subarray.push(text)
+      })
+      array.push(subarray)
+    }
+    return array
+  }
 
 
-	const daysBetweenDatesStringFormat = (date1, date2) => {
-		const bookingDate = stringToDate(date1)
-		const contractDate = stringToDate(date2)
-		const difference = bookingDate - contractDate
-		return difference
-	}
 
 
-	const addOneDayToDateWithHyphens = dateString => {
-		let date = stringToDate(dateString)
-		date = date.setDate(date.getDate() + 1)
-		date = new Date(date)
-		date = dateToString(date)
-		return date
-	}
+
 
 
 	const getGroupFormDataAsArray = (form) => {
@@ -97,53 +94,13 @@ define(require => {
 	}
 
 
-  const getRoomTypes = () => {
-
-  	const settingsString = window.localStorage.getItem("settings")
-  	const settings = JSON.parse(settingsString)
-    const roomTypeList = settings.roomTypes
-    let array = []
-    for(let key in roomTypeList) {
-      array.push(key)
-    }
-
-    return array
+  const getAvailabilityPromise = () => {
+    return $xmlh.getAndStoreXML($db.get("requestString"))
   }
 
-
-  const storeAvailability = (availability) => {
-
-    const roomTypes = getRoomTypes()
-    const storage = {}
-    storage["total"] = {}
-    roomTypes.forEach(type => {
-      storage[type] = {}
-    })
-
-    for(let type in availability) {
-      for(let day in availability[type]) {
-        storage[type][day] = availability[type][day][0]
-        if(storage["total"][day] == undefined) storage["total"][day] = 0
-        storage["total"][day] += availability[type][day][0]
-      }
-    }
-    const storageJSON = JSON.stringify(storage)
-    window.localStorage.setItem("availability", storageJSON)
-    const ref = firebase.firestore().doc("leifur/availability")
-    ref.set(storage)
+  const xmlToTable = doc => {
+    return $xmlh.xmlToTable(doc)
   }
-
-
-	const refreshData = () => {
-
-		const requestString = getDateURLrequestString()
-		const xmlPromise = $xmlh.getAndStoreXML(requestString)
-    xmlPromise.then(doc => {
-      const table = $xmlh.xmlToTable(doc)
-      $render.renderRates(table.rates)
-      $render.renderAvailability(table.availability)
-    })
-	}
 
   const getMinimumRoomsSupposedToBeAvailable = () => {
 
@@ -212,10 +169,27 @@ define(require => {
     return "Open"
   }
 
+  const getRoomTypes = () => {
+    const settings = get("settings")
+    const roomTypeList = settings.roomTypes
+    let array = []
+    for(let key in roomTypeList) {
+      array.push(key)
+    }
+
+    return array
+  }
+
+  const getPricesFromForm = groupForm => {
+    const data = getGroupFormDataAsArray(groupForm)
+    return $alg.calculateGroupPrice(data)
+  }
+
 
   const getCalculatedCloseOuts = () => {
 
     const availability = $db.get("availability")
+    console.log(availability)
     const returnObject = {}
     for(let roomType in availability) {
       if(roomType == "total") continue
@@ -229,27 +203,26 @@ define(require => {
     return returnObject
   }
 
-  const getCloseOutArrayAndRender = () => {
-    const closeOuts     = getCalculatedCloseOuts()
-    const closeOutTable = formatCloseOutsToTableFormat(closeOuts)
-    const table         = $render.makeTableFromArray(closeOutTable, ["date", "sgl", "dbl"])
-    const container     = document.querySelector(".closeOuts")
-    container.appendChild(table)
+  const loadSettingsFromDatabase = (callback) => {
+    return $db.loadSettings(callback)
   }
 
 
-
 	return {
+    get: get,
+    set: set,
+    getRoomTypes: getRoomTypes,
 		getDateURLrequestString: getDateURLrequestString,
 		getGroupFormDataAsArray: getGroupFormDataAsArray,
-		refreshData: refreshData,
-		getRoomTypes: getRoomTypes,
-		addOneDayToDateWithHyphens: addOneDayToDateWithHyphens,
-		dateToString: dateToString,
-		stringToDate: stringToDate,
-		daysBetweenDatesStringFormat: daysBetweenDatesStringFormat,
 		objectToArrayWithHeaders: objectToArrayWithHeaders,
     getCalculatedCloseOuts: getCalculatedCloseOuts,
-    getCloseOutArrayAndRender: getCloseOutArrayAndRender
+    getAvailabilityPromise: getAvailabilityPromise,
+    loadSettingsFromDatabase: loadSettingsFromDatabase,
+    xmlToTable: xmlToTable,
+    availabilityToTableFormat: availabilityToTableFormat,
+    formatCloseOutsToTableFormat: formatCloseOutsToTableFormat,
+    getPricesFromForm: getPricesFromForm,
+
+
 	}
 })

@@ -2,7 +2,6 @@
 
 define(function (require) {
   var $req = require("request");
-  var $render = require("render");
   var $db = require("database");
   var settings = $db.get("settings");
 

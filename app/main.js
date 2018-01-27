@@ -1,18 +1,18 @@
 "use strict";
 
-requirejs(["request", "dataManager", "xmlHelper", "algorithm", "render", "eventBinder", "database"], function ($req, $dm, $xmlh, $alg, $render, $eb, $db) {
+requirejs(["request", "dataManager", "xmlHelper", "algorithm", "build", "eventBinder", "database", "make", "procedures", "dateHelper", "development"], function ($req, $dm, $xmlh, $alg, $build, $eb, $db, $make, $prcd, $dh, $dev) {
 
-  $db.updateSettingsFromLocal();
+  $dev.renderDevWindow();
 
-  var callback = function callback() {
-    $dm.refreshData();
-    $dm.getCloseOutArrayAndRender();
-  };
-  $db.loadSettings(callback);
+  var settingsWindow = $make.settingsWindow();
+  $make.draggable(settingsWindow);
+  document.querySelector("body").appendChild(settingsWindow);
+
+  $prcd.refreshData();
+  $prcd.initializeGroupForm();
 
   var refreshButton = document.querySelector(".refreshData");
-  $eb.bindClickEvent(refreshButton, $eb.refreshData);
-  $eb.bindPreformButton();
+  $make.clickable(refreshButton, $prcd.refreshData);
 });
 
 // very nice

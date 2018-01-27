@@ -15,10 +15,14 @@
     "babel6": "babel appES6/xmlHelperES5.js --watch --out-file app/xmlHelper.js --source-maps",
     "babel7": "babel appES6/algorithmES5.js --watch --out-file app/algorithm.js --source-maps",
     "babel8": "babel appES6/renderES5.js --watch --out-file app/render.js --source-maps",
+    "babel9": "babel appES6/developmentES5.js --watch --out-file app/development.js --source-maps",
+    "babel10": "babel appES6/makeES5.js --watch --out-file app/make.js --source-maps",
+    "babel11": "babel appES6/proceduresES5.js --watch --out-file app/procedures.js --source-maps",
+    "babel12": "babel appES6/dateHelperES5.js --watch --out-file app/dateHelper.js --source-maps",
     "browser-sync": "browser-sync start --server --files index.html styles.css script-compiled.js",
     "sass": "node-sass --source-map-embed --watch styles.scss styles.css",
     "sass2": "node-sass --source-map-embed styles.scss styles.css",
-    "dev": "npm-run-all --parallel sass babel1 babel2 babel3 babel4 babel5 babel6 babel7 babel8 browser-sync"
+    "dev": "npm-run-all --parallel sass babel1 babel2 babel3 babel4 babel5 babel6 babel7 babel8 babel9 babel10 babel11 babel12 browser-sync"
   },
   "repository": {
     "type": "git",

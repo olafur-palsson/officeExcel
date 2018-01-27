@@ -1,11 +1,25 @@
 "use strict";
 
 define(function (require) {
+  var $make = require("make");
   var DAY_IN_MS = 86400000;
   var $req = require("request");
+  var $dh = require("dateHelper");
   var $xmlh = require("xmlHelper");
   var $db = require("database");
-  var $render = require("render");
+  var $alg = require("algorithm");
+
+  var get = function get(key) {
+    return $db.get(key);
+  };
+
+  var set = function set(key, data) {
+    $db.set(key, data);
+  };
+
+  var uploadSettings = function uploadSettings(settings) {
+    $db.uploadSettings(settings);
+  };
 
   var getDateURLrequestString = function getDateURLrequestString() {
 
@@ -19,7 +33,7 @@ define(function (require) {
     string += "arrivalDate=" + today.getUTCFullYear() + "-" + (today.getUTCMonth() + 1) + "-" + today.getUTCDate();
     string += "&";
     string += "departureDate=" + nDaysInAdvance.getUTCFullYear() + "-" + (nDaysInAdvance.getUTCMonth() + 1) + "-" + nDaysInAdvance.getUTCDate();
-
+    $db.set("requestString", string);
     return string;
   };
 
@@ -33,44 +47,34 @@ define(function (require) {
     return data;
   };
 
-  var stringToDate = function stringToDate(dateString) {
+  var availabilityToTableFormat = function availabilityToTableFormat(object) {
 
-    var array = dateString.split("-");
-    var y = array[0];
-    var m = parseInt(array[1]) + 1;
-    var d = array[2];
-    var date = new Date(y, m, d);
+    var array = [["date"]];
+    var compressedObject = {};
+    for (var key in object) {
+      array[0].push(key);
+      for (var date in object[key]) {
+        compressedObject[date] = [];
+      }
+    }
+    for (var _key in object) {
+      for (var _date in object[_key]) {
+        compressedObject[_date].push(object[_key][_date][0]);
+      }
+    }
 
-    return date;
-  };
+    var _loop = function _loop(_date2) {
+      var subarray = [_date2];
+      compressedObject[_date2].forEach(function (text) {
+        subarray.push(text);
+      });
+      array.push(subarray);
+    };
 
-  var dateToString = function dateToString(dateObject) {
-    var y = dateObject.getUTCFullYear();
-    var m = formatNumber(dateObject.getUTCMonth() - 1);
-    var d = formatNumber(dateObject.getUTCDate());
-    var dateArray = [y, m, d];
-    return dateArray.join("-");
-  };
-
-  var formatNumber = function formatNumber(number) {
-    var string = "" + number;
-    if (number < 10) string = "0" + string;
-    return string;
-  };
-
-  var daysBetweenDatesStringFormat = function daysBetweenDatesStringFormat(date1, date2) {
-    var bookingDate = stringToDate(date1);
-    var contractDate = stringToDate(date2);
-    var difference = bookingDate - contractDate;
-    return difference;
-  };
-
-  var addOneDayToDateWithHyphens = function addOneDayToDateWithHyphens(dateString) {
-    var date = stringToDate(dateString);
-    date = date.setDate(date.getDate() + 1);
-    date = new Date(date);
-    date = dateToString(date);
-    return date;
+    for (var _date2 in compressedObject) {
+      _loop(_date2);
+    }
+    return array;
   };
 
   var getGroupFormDataAsArray = function getGroupFormDataAsArray(form) {
@@ -89,50 +93,12 @@ define(function (require) {
     return data;
   };
 
-  var getRoomTypes = function getRoomTypes() {
-
-    var settingsString = window.localStorage.getItem("settings");
-    var settings = JSON.parse(settingsString);
-    var roomTypeList = settings.roomTypes;
-    var array = [];
-    for (var key in roomTypeList) {
-      array.push(key);
-    }
-
-    return array;
+  var getAvailabilityPromise = function getAvailabilityPromise() {
+    return $xmlh.getAndStoreXML($db.get("requestString"));
   };
 
-  var storeAvailability = function storeAvailability(availability) {
-
-    var roomTypes = getRoomTypes();
-    var storage = {};
-    storage["total"] = {};
-    roomTypes.forEach(function (type) {
-      storage[type] = {};
-    });
-
-    for (var type in availability) {
-      for (var day in availability[type]) {
-        storage[type][day] = availability[type][day][0];
-        if (storage["total"][day] == undefined) storage["total"][day] = 0;
-        storage["total"][day] += availability[type][day][0];
-      }
-    }
-    var storageJSON = JSON.stringify(storage);
-    window.localStorage.setItem("availability", storageJSON);
-    var ref = firebase.firestore().doc("leifur/availability");
-    ref.set(storage);
-  };
-
-  var refreshData = function refreshData() {
-
-    var requestString = getDateURLrequestString();
-    var xmlPromise = $xmlh.getAndStoreXML(requestString);
-    xmlPromise.then(function (doc) {
-      var table = $xmlh.xmlToTable(doc);
-      $render.renderRates(table.rates);
-      $render.renderAvailability(table.availability);
-    });
+  var xmlToTable = function xmlToTable(doc) {
+    return $xmlh.xmlToTable(doc);
   };
 
   var getMinimumRoomsSupposedToBeAvailable = function getMinimumRoomsSupposedToBeAvailable() {
@@ -176,8 +142,8 @@ define(function (require) {
       }
     } //convert the object to a format that makeTableFromArray can use
     var table = [];
-    for (var _key in tableObject) {
-      table.push(tableObject[_key]);
+    for (var _key2 in tableObject) {
+      table.push(tableObject[_key2]);
     }
 
     return table;
@@ -197,9 +163,26 @@ define(function (require) {
     return "Open";
   };
 
+  var getRoomTypes = function getRoomTypes() {
+    var settings = get("settings");
+    var roomTypeList = settings.roomTypes;
+    var array = [];
+    for (var key in roomTypeList) {
+      array.push(key);
+    }
+
+    return array;
+  };
+
+  var getPricesFromForm = function getPricesFromForm(groupForm) {
+    var data = getGroupFormDataAsArray(groupForm);
+    return $alg.calculateGroupPrice(data);
+  };
+
   var getCalculatedCloseOuts = function getCalculatedCloseOuts() {
 
     var availability = $db.get("availability");
+    console.log(availability);
     var returnObject = {};
     for (var roomType in availability) {
       if (roomType == "total") continue;
@@ -213,26 +196,25 @@ define(function (require) {
     return returnObject;
   };
 
-  var getCloseOutArrayAndRender = function getCloseOutArrayAndRender() {
-    var closeOuts = getCalculatedCloseOuts();
-    var closeOutTable = formatCloseOutsToTableFormat(closeOuts);
-    var table = $render.makeTableFromArray(closeOutTable, ["date", "sgl", "dbl"]);
-    var container = document.querySelector(".closeOuts");
-    container.appendChild(table);
+  var loadSettingsFromDatabase = function loadSettingsFromDatabase(callback) {
+    return $db.loadSettings(callback);
   };
 
   return {
+    get: get,
+    set: set,
+    getRoomTypes: getRoomTypes,
     getDateURLrequestString: getDateURLrequestString,
     getGroupFormDataAsArray: getGroupFormDataAsArray,
-    refreshData: refreshData,
-    getRoomTypes: getRoomTypes,
-    addOneDayToDateWithHyphens: addOneDayToDateWithHyphens,
-    dateToString: dateToString,
-    stringToDate: stringToDate,
-    daysBetweenDatesStringFormat: daysBetweenDatesStringFormat,
     objectToArrayWithHeaders: objectToArrayWithHeaders,
     getCalculatedCloseOuts: getCalculatedCloseOuts,
-    getCloseOutArrayAndRender: getCloseOutArrayAndRender
+    getAvailabilityPromise: getAvailabilityPromise,
+    loadSettingsFromDatabase: loadSettingsFromDatabase,
+    xmlToTable: xmlToTable,
+    availabilityToTableFormat: availabilityToTableFormat,
+    formatCloseOutsToTableFormat: formatCloseOutsToTableFormat,
+    getPricesFromForm: getPricesFromForm
+
   };
 });
 

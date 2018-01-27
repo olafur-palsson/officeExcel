@@ -1,4 +1,4 @@
-define(require => {
+define(() => {
 
   const getDaySerialCode = () => {
     const now = new Date()
@@ -7,14 +7,14 @@ define(require => {
     return Math.floor(days)
   }
 
-  const $fb = firebase.firestore().collection("leifur")
-
-  const updateSettingsFromLocal = () => {
-    const $req = require("request")
-    $req.fromURL("rateSettings.json", "JSON").then(data => {
-      $fb.doc("settings").set(data)
-    })    
+  const createError = (message, error) => {
+    let str = message
+    if(error) str += (" | error: " + error)
+    const errorbox = document.querySelector(".errorbox")
+    errorbox.innerHTML = str 
   }
+
+  const $fb = firebase.firestore().collection("leifur")
 
 
   const get = key => {
@@ -32,14 +32,29 @@ define(require => {
     try {
       return availability[name][date]
     } catch(error) {
-      require("render").makeError("You probably put in the wrong date when you asked for ", error)
+      createError("Something went wrong here bro... ", error)
     }
   }
 
+  const uploadRoomTypes = container => {
+    console.log("Totally updating bro, jk")
+  }
+
+
+  const getRoomTypes = () => {
+    const settings = get("settings")
+    const roomTypeList = settings.roomTypes
+    let array = []
+    for(let key in roomTypeList) {
+      array.push(key)
+    }
+
+    return array
+  }
 
   const storeAvailability = (availability) => {
 
-    const roomTypes = require("dataManager").getRoomTypes()
+    const roomTypes = getRoomTypes()
     const storage = {}
     storage["total"] = {}
     roomTypes.forEach(type => {
@@ -53,19 +68,50 @@ define(require => {
         storage["total"][day] += availability[type][day][0]
       }
     }
-    const storageJSON = JSON.stringify(storage)
-    const serialCode = getDaySerialCode()
-    window.localStorage.setItem("availability", storageJSON)
-    const ref = firebase.firestore().doc("leifur/availability" + serialCode)
+    const storageJSON = storage
+    set("availability", storageJSON)
+    const ref = firebase.firestore().doc("leifur/availability")
     ref.set(storage)
+  }
+
+  const addSerialToList = documentName => {
+    const serial = getDaySerialCode()
+    const list   = $fb.doc("settings").get()
+    list.then(doc => {
+      const data = doc.data()
+      let newArray = data["serialcodes"]
+      let check = true;
+      newArray.forEach(item => {
+        if(item == serial) check = false
+      })
+      if(check) newArray.push(serial)
+      $fb.doc("settings").set(data)
+    })
+  }
+
+  const uploadSettings = data => {
+
+    //data = get("settings")
+    const daySerial = getDaySerialCode()
+    const ref = $fb.doc("settings/" + daySerial + "/settings")
+    ref.set(data)
+    addSerialToList("settings")
   }
 
 
   const loadSettings = callback => {
+    
+    const a = $fb.doc("settings")
     const settings = $fb.doc("settings").get()
-    settings.then(doc => {
-      set("settings", doc.data())
-      callback()
+    settings.then(doc0 => {
+      const list = doc0.data().serialcodes
+      console.log(doc0.data())
+      const id   = Math.max(...list)
+      $fb.doc("settings/" + id + "/settings").get().then(doc1 => {
+        console.log(doc1.data())
+        set("settings", doc1.data())
+        callback()
+      })
     })
   }
 
@@ -74,9 +120,11 @@ define(require => {
     loadSettings: loadSettings,
     get: get,
     set: set,
-    storeAvailability: storeAvailability,
     getAvailabilityForDate: getAvailabilityForDate,
-    updateSettingsFromLocal: updateSettingsFromLocal
+    getDaySerialCode: getDaySerialCode,
+    uploadSettings: uploadSettings,
+    storeAvailability: storeAvailability,
+    createError: createError,
 
   }
 })

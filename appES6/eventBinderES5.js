@@ -1,6 +1,7 @@
-
+/*
 define(require => {
-  const $db = require("database")
+  const $make = require("make")
+  const $db   = require("database")
 
   const bindClickEvent = (element, eventFunction) => {
     element.addEventListener("click", (event) => {
@@ -41,12 +42,10 @@ define(require => {
     const $render = require("render")
     const rateContainer = document.querySelector(".channelAvailability")
     const channelContainer = document.querySelector(".rates")
-    $render.removeChildren(rateContainer)
-    $render.removeChildren(channelContainer)
+    $make.childless(rateContainer)
+    $make.childless(channelContainer)
     $dm.refreshData(tokenFunction)
   }
-
-
 
   return {
     bindClickEvent: bindClickEvent,
@@ -54,4 +53,4 @@ define(require => {
     groupFormEvent: groupFormEvent, 
     refreshData: refreshData,
   }
-})
+})*/

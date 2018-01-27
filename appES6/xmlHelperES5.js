@@ -1,6 +1,5 @@
 define(require => {
   const $req     = require("request")
-  const $render  = require("render")
   const $db      = require("database")
   const settings = $db.get("settings")
 
@@ -34,7 +33,6 @@ define(require => {
       })
 
     })
-
   }
 
 
@@ -102,4 +100,5 @@ define(require => {
     stringifyXML: stringifyXML,
     xmlToTable: xmlToTable
   }
+  
 })
