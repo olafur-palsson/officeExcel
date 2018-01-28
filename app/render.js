@@ -107,8 +107,8 @@ define(function (require) {
 
   var flatObjectFromDB = function flatObjectFromDB(object, objectName, className, sendSettings) {
     console.log("This is coming " + objectName);
-    var container = $make.el("div");
-    var heading = $make.el("h2");
+    var container = $make.el("div", "editor");
+    var heading = $make.el("h2", "editor__heading");
     var headingText = $make.txt(objectName);
 
     container.appendChild(heading);
@@ -121,7 +121,7 @@ define(function (require) {
 
       var textNode = $make.txt(text);
       var input = $make.el("input");
-      var div = $make.el("div");
+      var div = $make.el("div", "editor__item");
       div.appendChild(textNode);
       div.appendChild(input);
       input.dataset.key = key;
@@ -222,8 +222,17 @@ define(function (require) {
 
     console.trace(editor);
 
-    var settingsWindow = document.querySelector(".settingsWindow");
+    var settingsWindow = document.querySelector(".settings__window");
     settingsWindow.appendChild(editor);
+  };
+
+  var settingsWindow = function settingsWindow() {
+    var win = $make.draggableWindow("settings");
+    var settingsList = $make.settingsList($dm.get("settings"), displaySettingsFor);
+    document.querySelector("body").appendChild(win);
+    win.classList.add("displayNone");
+    win.appendChild(settingsList);
+    return win;
   };
 
   return {
@@ -237,7 +246,9 @@ define(function (require) {
     flatObjectFromDB: flatObjectFromDB,
     displaySettingsFor: displaySettingsFor,
     tableFromArray: tableFromArray,
-    preFormButton: preFormButton
+    preFormButton: preFormButton,
+    settingsWindow: settingsWindow
+
   };
 });
 

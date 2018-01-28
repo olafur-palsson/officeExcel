@@ -20,15 +20,12 @@ define(function (require) {
     console.log(stuff);
   };
 
-  var makeWindow = function makeWindow() {
+  var makeSettingsWindow = function makeSettingsWindow() {
     var div = document.createElement("div");
     var button = document.createElement("button");
     var btnText = document.createTextNode("upload Settings");
 
     var draggyPlace = document.createElement("div");
-    draggyPlace.style.backgroundColor = "#222";
-    draggyPlace.style.height = "25%";
-    draggyPlace.style.width = "100%";
     draggyPlace.classList.add("draggyPlace");
 
     div.classList.add("settingsWindow");

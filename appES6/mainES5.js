@@ -3,17 +3,18 @@ requirejs(["request", "dataManager", "xmlHelper", "algorithm", "build", "databas
           ( $req,     $dm,           $xmlh,       $alg,        $build,  $db,        $make,  $prcd,        $dh,          $dev         ) => {
 
 
-  $dev.renderDevWindow()
+  //$dev.renderDevWindow()
 
 
-  const settingsWindow = $make.settingsWindow()
+  /*const settingsWindow = $make.settingsWindow()
   $make.draggable(settingsWindow)
   document.querySelector("body").appendChild(settingsWindow)
-
-  $prcd.refreshData()
+    */
+    
   $prcd.initializeGroupForm()
   $prcd.bindRefreshDataButton()
-  
+  $prcd.bindContainerToggles()
+  $prcd.initializeSettings()
 })
 
 // very nice

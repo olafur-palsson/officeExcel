@@ -42,8 +42,19 @@ define(function (require) {
     return btn;
   };
 
+  var draggableWindow = function draggableWindow(className) {
+    var div = el("div", className);
+    var draggyPlace = el("div");
+
+    draggyPlace.classList.add("draggyPlace");
+    div.appendChild(draggyPlace);
+
+    draggable(div);
+    return div;
+  };
+
   var roomTypeListItem = function roomTypeListItem(item, override) {
-    var li = el("li", item);
+    var li = el("li", "editor__li");
     li.dataset.value = item;
     li.appendChild(txt(item));
     var btn = button("Remove type from list", function () {
@@ -71,8 +82,10 @@ define(function (require) {
     array.forEach(function (key) {
       var tr = el("tr");
       key.forEach(function (item) {
+        var i = item;
+        if (!isNaN(i)) i = Math.round(item * 100) / 100;
         var td = el("td");
-        var text = txt(item);
+        var text = txt(i);
         td.appendChild(text);
         tr.appendChild(td);
       });
@@ -86,16 +99,6 @@ define(function (require) {
     if (_error) str += " | error: " + _error;
     var errorbox = document.querySelector(".errorbox");
     errorbox.innerHTML = str;
-  };
-
-  var settingsWindow = function settingsWindow() {
-    var settingsWindow = el("div");
-    settingsWindow.classList.add("settingsWindow");
-    var theThingWeClickToDragWindows = el("div");
-    theThingWeClickToDragWindows.classList.add("draggyPlace");
-    settingsWindow.appendChild(theThingWeClickToDragWindows);
-
-    return settingsWindow;
   };
 
   var draggable = function draggable(element) {
@@ -157,10 +160,10 @@ define(function (require) {
     var list = [];
     for (var key in settings) {
       list.push(key);
-    }var container = el("div");
+    }var container = el("div", "settings__window");
 
     list.forEach(function (key) {
-      var div = el("div");
+      var div = el("div", "settings__window__item");
       var text = txt(key);
       var btn = button("Get", function () {
         callback(key);
@@ -179,14 +182,14 @@ define(function (require) {
     el: el,
     button: button,
     error: error,
-    settingsWindow: settingsWindow,
     draggable: draggable,
     childless: childless,
     settingsList: settingsList,
     roomTypeListItem: roomTypeListItem,
     input: input,
     heading: heading,
-    clickable: clickable
+    clickable: clickable,
+    draggableWindow: draggableWindow
 
   };
 });

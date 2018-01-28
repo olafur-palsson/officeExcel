@@ -187,6 +187,7 @@ define(require => {
   const getCalculatedCloseOuts = () => {
 
     const availability = $db.get("availability")
+    console.log("This is what I'm rendering bro")
     console.log(availability)
     const returnObject = {}
     for(let roomType in availability) {

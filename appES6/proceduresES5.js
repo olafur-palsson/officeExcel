@@ -12,7 +12,7 @@ define(require => {
   }
 
   const refreshData = (isFromButton) => {
-    $dm.loadSettingsFromDatabase(getCloseOutArrayAndRender)
+    $dm.loadSettingsFromDatabase(() => {;})
     console.log(isFromButton)
     const requestString = $dm.getDateURLrequestString(isFromButton)
 
@@ -21,6 +21,7 @@ define(require => {
       const rateDiv = $render.rates(table.rates)
       document.querySelector(".rates").appendChild(rateDiv)
       $render.availability(table.availability)
+      getCloseOutArrayAndRender()
     })
   }
 
@@ -40,10 +41,31 @@ define(require => {
     console.log(button)
   }
 
+  const bindContainerToggles = () => {
+    const buttons = Array.from(document.querySelectorAll(".container__toggle"))
+    buttons.forEach(button => {
+      const container = button.parentElement.querySelector("div")
+      $make.clickable(button, () => {
+        container.classList.toggle("displayNone")
+      })
+      console.log(container)
+    })
+  }
+
+  const initializeSettings = () => {
+    const win = $render.settingsWindow()
+    const toggleButton = document.querySelector(".navbar__settings__img")
+    $make.clickable(toggleButton, () => {
+      win.classList.toggle("displayNone")
+    })
+  }
+
 
   return{
     refreshData: refreshData,
     initializeGroupForm: initializeGroupForm,
     bindRefreshDataButton:bindRefreshDataButton,
+    bindContainerToggles: bindContainerToggles,
+    initializeSettings: initializeSettings,
   };
 })

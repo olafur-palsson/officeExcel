@@ -70,7 +70,9 @@ define((require) => {
     const occupancyBonus = (1-occupancy) * _rP.occupancyWeight //
     const futureBonus    = (1-expectedRooms)*_rP.futureWeight //
     const lastRoomsBonus = Math.pow(1-occupancy, 8)*_rP.occupancyWeight*1.5 //
-    const sellOffRatio   = Math.min(Math.pow((187 - daysUntilDate)/180, 6.5), 1) //
+    let sellOffRatio   = Math.min(Math.pow((187 - daysUntilDate)/180, 6.5), 1) //
+    if(isNaN(sellOffRatio)) sellOffRatio = 0
+    console.log("Selloff ration == " + sellOffRatio)
     const sellOffDisc    = sellOffRatio * _rP.sellOff //
     const superDayBonus  = superDayValue(dateObject) //
 
@@ -86,7 +88,7 @@ define((require) => {
     const absFloorPlus   = _rP.absoluteFloor + weekendBonus
     //Compare lowest rate vs algorithm
     const finalRate      = Math.max(absFloorPlus, algorithmRate)
-
+    console.log(finalRate)
     return [dateString, finalRate, availability]
   }
 

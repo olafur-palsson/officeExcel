@@ -107,8 +107,8 @@ define((require) => {
 
   const flatObjectFromDB = (object, objectName, className, sendSettings) => {
     console.log("This is coming " + objectName)
-    const container   = $make.el("div")
-    const heading     = $make.el("h2")
+    const container   = $make.el("div", "editor")
+    const heading     = $make.el("h2", "editor__heading")
     const headingText = $make.txt(objectName)
 
     container.appendChild(heading)
@@ -121,7 +121,7 @@ define((require) => {
 
       const textNode = $make.txt(text)
       const input    = $make.el("input")
-      const div      = $make.el("div")
+      const div      = $make.el("div", "editor__item")
       div.appendChild(textNode)
       div.appendChild(input)
       input.dataset.key = key
@@ -223,8 +223,17 @@ define((require) => {
 
     console.trace(editor)
 
-    const settingsWindow = document.querySelector(".settingsWindow")
+    const settingsWindow = document.querySelector(".settings__window")
     settingsWindow.appendChild(editor)
+  }
+
+  const settingsWindow = () => {
+    const win = $make.draggableWindow("settings")
+    const settingsList = $make.settingsList($dm.get("settings"), displaySettingsFor)
+    document.querySelector("body").appendChild(win)
+    win.classList.add("displayNone")
+    win.appendChild(settingsList)
+    return win
   }
 
   return {
@@ -239,5 +248,7 @@ define((require) => {
     displaySettingsFor: displaySettingsFor,
     tableFromArray: tableFromArray,
     preFormButton: preFormButton,
+    settingsWindow: settingsWindow,
+
   }
 })

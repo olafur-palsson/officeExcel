@@ -14,7 +14,9 @@ define(function (require) {
   };
 
   var refreshData = function refreshData(isFromButton) {
-    $dm.loadSettingsFromDatabase(getCloseOutArrayAndRender);
+    $dm.loadSettingsFromDatabase(function () {
+      ;
+    });
     console.log(isFromButton);
     var requestString = $dm.getDateURLrequestString(isFromButton);
 
@@ -23,6 +25,7 @@ define(function (require) {
       var rateDiv = $render.rates(table.rates);
       document.querySelector(".rates").appendChild(rateDiv);
       $render.availability(table.availability);
+      getCloseOutArrayAndRender();
     });
   };
 
@@ -42,10 +45,31 @@ define(function (require) {
     console.log(button);
   };
 
+  var bindContainerToggles = function bindContainerToggles() {
+    var buttons = Array.from(document.querySelectorAll(".container__toggle"));
+    buttons.forEach(function (button) {
+      var container = button.parentElement.querySelector("div");
+      $make.clickable(button, function () {
+        container.classList.toggle("displayNone");
+      });
+      console.log(container);
+    });
+  };
+
+  var initializeSettings = function initializeSettings() {
+    var win = $render.settingsWindow();
+    var toggleButton = document.querySelector(".navbar__settings__img");
+    $make.clickable(toggleButton, function () {
+      win.classList.toggle("displayNone");
+    });
+  };
+
   return {
     refreshData: refreshData,
     initializeGroupForm: initializeGroupForm,
-    bindRefreshDataButton: bindRefreshDataButton
+    bindRefreshDataButton: bindRefreshDataButton,
+    bindContainerToggles: bindContainerToggles,
+    initializeSettings: initializeSettings
   };
 });
 

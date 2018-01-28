@@ -184,6 +184,7 @@ define(function (require) {
   var getCalculatedCloseOuts = function getCalculatedCloseOuts() {
 
     var availability = $db.get("availability");
+    console.log("This is what I'm rendering bro");
     console.log(availability);
     var returnObject = {};
     for (var roomType in availability) {

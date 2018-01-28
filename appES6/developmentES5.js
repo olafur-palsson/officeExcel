@@ -19,15 +19,12 @@ define(require => {
     console.log(stuff)
   }
 
-  const makeWindow = () => {
+  const makeSettingsWindow = () => {
     const div = document.createElement("div")
     const button = document.createElement("button")
     const btnText = document.createTextNode("upload Settings")
 
     const draggyPlace = document.createElement("div")
-    draggyPlace.style.backgroundColor = "#222"
-    draggyPlace.style.height          = "25%"
-    draggyPlace.style.width           = "100%"
     draggyPlace.classList.add("draggyPlace")
 
     div.classList.add("settingsWindow")

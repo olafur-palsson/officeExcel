@@ -1,16 +1,41 @@
-.settingsWindow {
-  width: 100px;
-  height: 100px;
-  background-color: green;
+.settings {
+  background-color: #423da5;
   position: absolute;
-  z-index: 5;
+  z-index: 15;
 
+  &__window {
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    width: 300px;
 
+    &__item {
+      display: flex;
+      justify-content: space-between;
+      padding: 3px;
+
+    }
+  }
+}
+
+.editor {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+
+  &__item {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  &__li {
+    display: flex;
+    justify-content: space-between;
+  }
 }
 
 .draggyPlace {
-    width: 100%;
-    height: 25%;
-    background-color: red;
+    padding-top: 30px;
+    background-color: #221abc;
     z-index: 6;
 }

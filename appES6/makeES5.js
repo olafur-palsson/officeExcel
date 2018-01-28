@@ -38,8 +38,19 @@ define(require => {
     return btn
   }
 
+  const draggableWindow = (className) => {
+    const div = el("div", className)
+    const draggyPlace = el("div")
+
+    draggyPlace.classList.add("draggyPlace")
+    div.appendChild(draggyPlace)
+
+    draggable(div)
+    return div
+  }
+
   const roomTypeListItem = (item, override) => {
-    const li = el("li", item)
+    const li = el("li", "editor__li")
     li.dataset.value = item
     li.appendChild(txt(item))
     const btn = button("Remove type from list", () => {
@@ -68,8 +79,11 @@ define(require => {
     array.forEach((key) => {
       const tr = el("tr")
       key.forEach((item) => {
+        let i = item
+        if(!isNaN(i))
+          i = Math.round(item * 100) / 100;
         const td  = el("td")
-        const text = txt(item)
+        const text = txt(i)
         td.appendChild(text)
         tr.appendChild(td)
       })
@@ -85,15 +99,6 @@ define(require => {
     errorbox.innerHTML = str 
   }
 
-  const settingsWindow = () => {
-    const settingsWindow = el("div")
-    settingsWindow.classList.add("settingsWindow")
-    const theThingWeClickToDragWindows = el("div")
-    theThingWeClickToDragWindows.classList.add("draggyPlace")
-    settingsWindow.appendChild(theThingWeClickToDragWindows)
-
-    return settingsWindow
-  }
 
   const draggable = (element) => {
     var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
@@ -155,10 +160,10 @@ define(require => {
     for(let key in settings)
       list.push(key)
 
-    const container = el("div")
+    const container = el("div", "settings__window")
 
     list.forEach(key => {
-      const div  = el("div")
+      const div  = el("div", "settings__window__item")
       const text = txt(key)
       const btn  = button("Get", () => {
         callback(key)
@@ -177,7 +182,6 @@ define(require => {
     el: el,
     button: button,
     error: error,
-    settingsWindow: settingsWindow,
     draggable: draggable,
     childless: childless,
     settingsList: settingsList,
@@ -185,6 +189,7 @@ define(require => {
     input: input,
     heading: heading,
     clickable: clickable,
+    draggableWindow: draggableWindow,
 
   }
 })
