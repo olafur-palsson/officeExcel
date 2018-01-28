@@ -1,4 +1,10 @@
 /*
+
+
+                    ARCHAIC FUNCTIONS
+
+
+
 define(require => {
   const $make = require("make")
   const $db   = require("database")

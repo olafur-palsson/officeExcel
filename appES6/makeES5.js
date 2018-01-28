@@ -38,16 +38,16 @@ define(require => {
     return btn
   }
 
-  const roomTypeListItem = (item, parent, override) => {
-    const li = el("li")
+  const roomTypeListItem = (item, override) => {
+    const li = el("li", item)
     li.dataset.value = item
     li.appendChild(txt(item))
     const btn = button("Remove type from list", () => {
       if(override) override()
-      else parent.removeChild(li)
+      else li.parentElement.removeChild(li)
     })
     li.appendChild(btn)
-    parent.appendChild(li)
+    return li
   }
 
   const tableFromArray = (array, theaders) => {

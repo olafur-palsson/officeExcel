@@ -3,6 +3,7 @@
 define(function (require) {
   var $dm = require("dataManager");
   var $render = require("render");
+  var $make = require("make");
 
   var getCloseOutArrayAndRender = function getCloseOutArrayAndRender() {
     var closeOuts = $dm.getCalculatedCloseOuts();
@@ -12,16 +13,24 @@ define(function (require) {
     container.appendChild(table);
   };
 
-  var refreshData = function refreshData() {
+  var refreshData = function refreshData(isFromButton) {
     $dm.loadSettingsFromDatabase(getCloseOutArrayAndRender);
+    console.log(isFromButton);
+    var requestString = $dm.getDateURLrequestString(isFromButton);
 
-    var requestString = $dm.getDateURLrequestString();
-
-    $dm.getAvailabilityPromise().then(function (doc) {
+    $dm.getAvailabilityPromise(isFromButton).then(function (doc) {
       var table = $dm.xmlToTable(doc);
       var rateDiv = $render.rates(table.rates);
       document.querySelector(".rates").appendChild(rateDiv);
       $render.availability(table.availability);
+    });
+  };
+
+  var bindRefreshDataButton = function bindRefreshDataButton() {
+    var btn = document.querySelector(".refreshData");
+    $make.clickable(btn, function () {
+      console.log("right here");
+      refreshData("huetnoashuenaoa");
     });
   };
 
@@ -35,7 +44,8 @@ define(function (require) {
 
   return {
     refreshData: refreshData,
-    initializeGroupForm: initializeGroupForm
+    initializeGroupForm: initializeGroupForm,
+    bindRefreshDataButton: bindRefreshDataButton
   };
 });
 

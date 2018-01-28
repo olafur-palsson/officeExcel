@@ -104,7 +104,8 @@ define((require) => {
     })
   }
 
-  const flatObjectFromDB = (object, objectName, className) => {
+
+  const flatObjectFromDB = (object, objectName, className, sendSettings) => {
     console.log("This is coming " + objectName)
     const container   = $make.el("div")
     const heading     = $make.el("h2")
@@ -127,23 +128,32 @@ define((require) => {
       container.appendChild(div)
     }
 
-    const button = $make.button("Upload changes")
-    container.appendChild(button)
+    const button = $make.button(
+      "Upload changes", 
+      () => {
+        const inputs = Array.from(container.querySelectorAll("input"))
+        inputs.forEach(input => {
+          
+          const key   = input.dataset.key
 
-    $eb.bindClickEvent(button, () => {
-      const inputs = Array.from(container.querySelectorAll("input"))
-      inputs.forEach(input => {
-        const key   = input.dataset.key
-        const value = parseInt(input.value)
-        console.log(value)
-        if(value)
-          object[key] = value
-      })
-      let settings = $dm.get("settings")
-      console.log(object)
-      settings[objectName] = object
-      $dm.uploadSettings(settings)
-    })
+          const value = parseInt(input.value)
+          console.log(value)
+          if(value)
+            object[key] = value
+        })
+        let settings = $dm.get("settings")
+        console.log(object)
+        if(container.classList.contains("retailContract"))
+          settings["retailContract"][objectName] = object
+        else 
+          settings[objectName] = object
+
+        $dm.uploadSettings(settings)
+      }, 
+      "settings__uploadButton"
+    )
+
+    container.appendChild(button)
 
     const close = $make.button("Close", () => {
       $make.childless(container)
@@ -160,14 +170,21 @@ define((require) => {
 
     for(let key in object) {
       const ul = $make.el("ul")
+      ul.dataset.roomTypeClass = key
 
       object[key].forEach(item => {
-        $make.roomTypeListItem(item, ul)
+        const li = $make.roomTypeListItem(item)
+        ul.appendChild(li)
       })
       const input = $make.input("text")
       const btn   = $make.button("Add to list", () => {
-        $make.roomTypeListItem(input.value, ul)
+        const li = $make.roomTypeListItem(input.value)
+        ul.appendChild(li)
       })
+
+      ul.appendChild(input)
+      ul.appendChild(btn)
+
       container.appendChild($make.heading(key))
       container.appendChild(ul)
     }
@@ -175,6 +192,8 @@ define((require) => {
     const btn = $make.button("Upload settings", () => {
       $dm.uploadRoomTypes(container)
     })
+
+    container.appendChild(btn)
 
     return container
   }
@@ -186,7 +205,7 @@ define((require) => {
     container.appendChild(heading)
 
     for(let key in object) {
-      container.appendChild(flatObjectFromDB(object[key], key))
+      container.appendChild(flatObjectFromDB(object[key], key, "retailContract"))
     }
     return container
   }
@@ -202,13 +221,11 @@ define((require) => {
       default:                editor = flatObjectFromDB(settings[key], key)
     }
 
-    console.log(editor)
+    console.trace(editor)
 
     const settingsWindow = document.querySelector(".settingsWindow")
     settingsWindow.appendChild(editor)
   }
-
-
 
   return {
     getAvailabilityTable: getAvailabilityTable,

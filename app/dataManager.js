@@ -18,14 +18,16 @@ define(function (require) {
   };
 
   var uploadSettings = function uploadSettings(settings) {
+    set("settings", settings);
     $db.uploadSettings(settings);
   };
 
-  var getDateURLrequestString = function getDateURLrequestString() {
-
+  var getDateURLrequestString = function getDateURLrequestString(daysAreChosen) {
+    var input = document.getElementById("days");
     var URLSettings = $db.get("settings").requestAvailability;
     var string = URLSettings["URL"];
     var n = URLSettings["days"];
+    if (daysAreChosen) n = parseInt(input.value);
     var today = new Date();
     var nDaysInAdvance = new Date();
 
@@ -94,7 +96,7 @@ define(function (require) {
   };
 
   var getAvailabilityPromise = function getAvailabilityPromise() {
-    return $xmlh.getAndStoreXML($db.get("requestString"));
+    return $xmlh.getAndStoreXML(get("requestString"));
   };
 
   var xmlToTable = function xmlToTable(doc) {
@@ -200,6 +202,23 @@ define(function (require) {
     return $db.loadSettings(callback);
   };
 
+  var uploadRoomTypes = function uploadRoomTypes(container) {
+    var lists = Array.from(container.querySelectorAll("ul"));
+    var roomTypesObject = {};
+    lists.forEach(function (ul) {
+      console.log(ul);
+      var arrayName = ul.dataset.roomTypeClass;
+      var list = Array.from(ul.querySelectorAll("li"));
+      list = list.map(function (item) {
+        return item.dataset.value;
+      });
+      roomTypesObject[arrayName] = list;
+    });
+    var settings = get("settings");
+    settings["roomTypes"] = roomTypesObject;
+    uploadSettings(settings);
+  };
+
   return {
     get: get,
     set: set,
@@ -213,7 +232,9 @@ define(function (require) {
     xmlToTable: xmlToTable,
     availabilityToTableFormat: availabilityToTableFormat,
     formatCloseOutsToTableFormat: formatCloseOutsToTableFormat,
-    getPricesFromForm: getPricesFromForm
+    getPricesFromForm: getPricesFromForm,
+    uploadSettings: uploadSettings,
+    uploadRoomTypes: uploadRoomTypes
 
   };
 });

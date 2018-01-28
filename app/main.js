@@ -1,6 +1,6 @@
 "use strict";
 
-requirejs(["request", "dataManager", "xmlHelper", "algorithm", "build", "eventBinder", "database", "make", "procedures", "dateHelper", "development"], function ($req, $dm, $xmlh, $alg, $build, $eb, $db, $make, $prcd, $dh, $dev) {
+requirejs(["request", "dataManager", "xmlHelper", "algorithm", "build", "database", "make", "procedures", "dateHelper", "development"], function ($req, $dm, $xmlh, $alg, $build, $db, $make, $prcd, $dh, $dev) {
 
   $dev.renderDevWindow();
 
@@ -10,9 +10,7 @@ requirejs(["request", "dataManager", "xmlHelper", "algorithm", "build", "eventBi
 
   $prcd.refreshData();
   $prcd.initializeGroupForm();
-
-  var refreshButton = document.querySelector(".refreshData");
-  $make.clickable(refreshButton, $prcd.refreshData);
+  $prcd.bindRefreshDataButton();
 });
 
 // very nice

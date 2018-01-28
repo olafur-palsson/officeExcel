@@ -15,16 +15,19 @@ define(require => {
   }
 
   const uploadSettings = settings => {
+    set("settings", settings)
     $db.uploadSettings(settings)
   }
 
-	const getDateURLrequestString = () => {
-
+	const getDateURLrequestString = (daysAreChosen) => {
+    const input = document.getElementById("days")
 		const URLSettings  = $db.get("settings").requestAvailability
 		let string         = URLSettings["URL"]
-		const n            = URLSettings["days"]
+		let n            = URLSettings["days"]
+    if(daysAreChosen) n = parseInt(input.value)
 		const today        = new Date()
 		let nDaysInAdvance = new Date()
+
 
 		nDaysInAdvance.setDate(nDaysInAdvance.getDate() + n)
 		string += "arrivalDate="   + today.getUTCFullYear() + "-" + (today.getUTCMonth() + 1) + "-" + today.getUTCDate()
@@ -72,11 +75,6 @@ define(require => {
   }
 
 
-
-
-
-
-
 	const getGroupFormDataAsArray = (form) => {
 
 		const divs = Array.from(form.querySelectorAll("div"))
@@ -95,7 +93,7 @@ define(require => {
 
 
   const getAvailabilityPromise = () => {
-    return $xmlh.getAndStoreXML($db.get("requestString"))
+    return $xmlh.getAndStoreXML(get("requestString"))
   }
 
   const xmlToTable = doc => {
@@ -207,6 +205,21 @@ define(require => {
     return $db.loadSettings(callback)
   }
 
+  const uploadRoomTypes = (container) => {
+    const lists = Array.from(container.querySelectorAll("ul"))
+    let roomTypesObject = {}
+    lists.forEach(ul => {
+      console.log(ul)
+      const arrayName = ul.dataset.roomTypeClass
+      let list = Array.from(ul.querySelectorAll("li"))
+      list = list.map(item => item.dataset.value)
+      roomTypesObject[arrayName] = list
+    })
+    let settings = get("settings")
+    settings["roomTypes"] = roomTypesObject
+    uploadSettings(settings)
+  }
+
 
 	return {
     get: get,
@@ -222,7 +235,8 @@ define(require => {
     availabilityToTableFormat: availabilityToTableFormat,
     formatCloseOutsToTableFormat: formatCloseOutsToTableFormat,
     getPricesFromForm: getPricesFromForm,
-
+    uploadSettings: uploadSettings,
+    uploadRoomTypes: uploadRoomTypes,
 
 	}
 })

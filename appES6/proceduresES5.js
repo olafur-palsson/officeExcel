@@ -1,6 +1,7 @@
 define(require => {
   const $dm = require("dataManager")
   const $render = require("render")
+  const $make   = require("make")
 
   const getCloseOutArrayAndRender = () => {
     const closeOuts     = $dm.getCalculatedCloseOuts()
@@ -10,16 +11,24 @@ define(require => {
     container.appendChild(table)
   }
 
-  const refreshData = () => {
+  const refreshData = (isFromButton) => {
     $dm.loadSettingsFromDatabase(getCloseOutArrayAndRender)
+    console.log(isFromButton)
+    const requestString = $dm.getDateURLrequestString(isFromButton)
 
-    const requestString = $dm.getDateURLrequestString()
-
-    $dm.getAvailabilityPromise().then(doc => {
+    $dm.getAvailabilityPromise(isFromButton).then(doc => {
       const table = $dm.xmlToTable(doc)
       const rateDiv = $render.rates(table.rates)
       document.querySelector(".rates").appendChild(rateDiv)
       $render.availability(table.availability)
+    })
+  }
+
+  const bindRefreshDataButton = () => {
+    const btn = document.querySelector(".refreshData")
+    $make.clickable(btn, () => {
+      console.log("right here")
+      refreshData("huetnoashuenaoa")
     })
   }
 
@@ -35,5 +44,6 @@ define(require => {
   return{
     refreshData: refreshData,
     initializeGroupForm: initializeGroupForm,
+    bindRefreshDataButton:bindRefreshDataButton,
   };
 })

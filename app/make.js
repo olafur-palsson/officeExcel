@@ -42,15 +42,15 @@ define(function (require) {
     return btn;
   };
 
-  var roomTypeListItem = function roomTypeListItem(item, parent, override) {
-    var li = el("li");
+  var roomTypeListItem = function roomTypeListItem(item, override) {
+    var li = el("li", item);
     li.dataset.value = item;
     li.appendChild(txt(item));
     var btn = button("Remove type from list", function () {
-      if (override) override();else parent.removeChild(li);
+      if (override) override();else li.parentElement.removeChild(li);
     });
     li.appendChild(btn);
-    parent.appendChild(li);
+    return li;
   };
 
   var tableFromArray = function tableFromArray(array, theaders) {

@@ -105,7 +105,7 @@ define(function (require) {
     });
   };
 
-  var flatObjectFromDB = function flatObjectFromDB(object, objectName, className) {
+  var flatObjectFromDB = function flatObjectFromDB(object, objectName, className, sendSettings) {
     console.log("This is coming " + objectName);
     var container = $make.el("div");
     var heading = $make.el("h2");
@@ -128,22 +128,24 @@ define(function (require) {
       container.appendChild(div);
     }
 
-    var button = $make.button("Upload changes");
-    container.appendChild(button);
-
-    $eb.bindClickEvent(button, function () {
+    var button = $make.button("Upload changes", function () {
       var inputs = Array.from(container.querySelectorAll("input"));
       inputs.forEach(function (input) {
+
         var key = input.dataset.key;
+
         var value = parseInt(input.value);
         console.log(value);
         if (value) object[key] = value;
       });
       var settings = $dm.get("settings");
       console.log(object);
-      settings[objectName] = object;
+      if (container.classList.contains("retailContract")) settings["retailContract"][objectName] = object;else settings[objectName] = object;
+
       $dm.uploadSettings(settings);
-    });
+    }, "settings__uploadButton");
+
+    container.appendChild(button);
 
     var close = $make.button("Close", function () {
       $make.childless(container);
@@ -160,14 +162,21 @@ define(function (require) {
 
     var _loop = function _loop(key) {
       var ul = $make.el("ul");
+      ul.dataset.roomTypeClass = key;
 
       object[key].forEach(function (item) {
-        $make.roomTypeListItem(item, ul);
+        var li = $make.roomTypeListItem(item);
+        ul.appendChild(li);
       });
       var input = $make.input("text");
       var btn = $make.button("Add to list", function () {
-        $make.roomTypeListItem(input.value, ul);
+        var li = $make.roomTypeListItem(input.value);
+        ul.appendChild(li);
       });
+
+      ul.appendChild(input);
+      ul.appendChild(btn);
+
       container.appendChild($make.heading(key));
       container.appendChild(ul);
     };
@@ -180,6 +189,8 @@ define(function (require) {
       $dm.uploadRoomTypes(container);
     });
 
+    container.appendChild(btn);
+
     return container;
   };
 
@@ -190,7 +201,7 @@ define(function (require) {
     container.appendChild(heading);
 
     for (var key in object) {
-      container.appendChild(flatObjectFromDB(object[key], key));
+      container.appendChild(flatObjectFromDB(object[key], key, "retailContract"));
     }
     return container;
   };
@@ -209,7 +220,7 @@ define(function (require) {
         editor = flatObjectFromDB(settings[key], key);
     }
 
-    console.log(editor);
+    console.trace(editor);
 
     var settingsWindow = document.querySelector(".settingsWindow");
     settingsWindow.appendChild(editor);
