@@ -1,0 +1,29 @@
+.navbar {
+  width: 100vw;
+  position: absolute;
+  min-height: 2.5rem;
+  max-height: 15vh;
+  display: flex;
+  background-color: #692984;
+  justify-content: space-between;
+  box-sizing: border-box;
+  z-index: 2;
+  padding: 20px 20px
+
+  &__heading {
+    font-size: 2rem;
+  }
+
+  &__settings {
+    display: flex;
+    justify-content: center;
+
+      &__img {
+      z-index: 4;
+      background-image: url("img/cog-box-512.png");
+      background-size: cover;
+      width: 75px;
+      height: 75px;
+    }
+  }
+}
