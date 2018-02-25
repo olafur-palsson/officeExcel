@@ -1,0 +1,54 @@
+{
+  "name": "stort2",
+  "version": "1.0.0",
+  "description": "Stórt verkefni 2",
+  "main": ".eslintrc.js",
+  "scripts": {
+    "eslint": "eslint --fix es6scripts.js",
+    "stylelint": "stylelint --fix *.scss scss/*.scss --syntax scss",
+    "lint": "npm-run-all --parallel eslint stylelint",
+    "babel1": "babel appES6/databaseES5.js --watch --out-file app/database.js --source-maps",
+    "babel2": "babel appES6/eventBinderES5.js --watch --out-file app/eventBinder.js --source-maps",
+    "babel3": "babel appES6/mainES5.js --watch --out-file app/main.js --source-maps",
+    "babel4": "babel appES6/dataManagerES5.js --watch --out-file app/dataManager.js --source-maps",
+    "babel5": "babel appES6/requestES5.js --watch --out-file app/request.js --source-maps",
+    "babel6": "babel appES6/xmlHelperES5.js --watch --out-file app/xmlHelper.js --source-maps",
+    "babel7": "babel appES6/algorithmES5.js --watch --out-file app/algorithm.js --source-maps",
+    "babel8": "babel appES6/renderES5.js --watch --out-file app/render.js --source-maps",
+    "babel9": "babel appES6/developmentES5.js --watch --out-file app/development.js --source-maps",
+    "babel10": "babel appES6/makeES5.js --watch --out-file app/make.js --source-maps",
+    "babel11": "babel appES6/proceduresES5.js --watch --out-file app/procedures.js --source-maps",
+    "babel12": "babel appES6/dateHelperES5.js --watch --out-file app/dateHelper.js --source-maps",
+    "browser-sync": "browser-sync start --server --files index.html styles.css script-compiled.js",
+    "sass": "node-sass --source-map-embed --watch styles.scss styles.css",
+    "sass2": "node-sass --source-map-embed styles.scss styles.css",
+    "dev": "npm-run-all --parallel sass sass2 babel1 babel2 babel3 babel4 babel5 babel6 babel7 babel8 babel9 babel10 babel11 babel12 browser-sync"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/olafur-palsson/vefforritunstort2.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/olafur-palsson/vefforritunstort2/issues"
+  },
+  "homepage": "https://github.com/olafur-palsson/vefforritunstort2#readme",
+  "devDependencies": {
+    "babel-cli": "6.26.0",
+    "babel-eslint": "8.0.1",
+    "babel-preset-env": "1.6.1",
+    "browser-sync": "2.18.13",
+    "eslint": "4.9.0",
+    "eslint-config-airbnb-base": "12.1.0",
+    "eslint-plugin-import": "2.8.0",
+    "node-sass": "4.5.3",
+    "npm-run-all": "4.1.1",
+    "stylelint": "8.1.1",
+    "stylelint-config-primer": "2.0.1"
+  },
+  "dependencies": {
+    "lodash": "^4.17.4",
+    "requirejs": "^2.3.5"
+  }
+}

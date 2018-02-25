@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>title</title>
+    <meta name="author" content="name">
+    <meta name="description" content="description here">
+    <meta name="keywords" content="keywords,here">
+    <link rel="stylesheet" type="text/css" href="styles.css">
+    <link href="https://fonts.googleapis.com/css?family=Roboto+Condensed" rel="stylesheet">
+  </head>
+  <body class="body">
+    <div class="errorbox">
+    </div>
+
+    <div class="navbar">
+      <h2 class="navbar__heading">Hotel Manager</h2>
+      <div class="navbar__settings">
+        <button class="navbar__settings__img"></button>
+        <h2 class="navbar__settings__heading">Settings</h2>
+
+      </div>
+    </div>
+
+    <div class="jumbotron">
+      <h1>Choose how many days</h1>
+      <input id="days" type="number" name="" value="400">
+      <button class="refreshData">Refresh Data</button>
+    </div>
+
+  <div class="main">
+    
+      <div class="rateContainer container">
+        <h1>Rates</h1>
+        <button class="container__toggle">Show/Hide</button>
+        <div class="rates displayNone"></div>
+      </div>
+
+    <div class="channelContainer container">
+      <h1>Channel availability</h1>
+      <button class="container__toggle">Show/Hide</button>
+      <div class="channelAvailability displayNone"></div>
+    </div>
+
+    <div class="closeOutsContainer container">
+      <h1>Close Outs</h1>
+      <button class="container__toggle">Show/Hide</button>
+      <div class="closeOuts displayNone"></div>
+    </div>
+
+    <div class="groupCalc container">
+      <h1>Group Calculator</h1>
+      <div class="groupCalc__formContainer">
+        <form class="groupCalc__preForm">
+          Number of separate bookings
+          <input id="numberOfBookings" type="number" name="numberOfBookings">
+        </form>
+      </div>
+    </div>
+
+  </div>
+
+
+
+  </body>
+  <script src="https://www.gstatic.com/firebasejs/4.8.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/4.8.1/firebase-firestore.js"></script>
+  <script>
+    // Initialize Firebase
+    var config = {
+      apiKey: "AIzaSyAFVrO-ENTJ0-GkB6e5cySyHNvq-6o25fk",
+      authDomain: "officeexcel-71962.firebaseapp.com",
+      databaseURL: "https://officeexcel-71962.firebaseio.com",
+      projectId: "officeexcel-71962",
+      storageBucket: "officeexcel-71962.appspot.com",
+      messagingSenderId: "413961192549"
+    };
+    firebase.initializeApp(config);
+  </script>
+  <script type="text/javascript" data-main="app/config/config" src="res/require.js"></script>
+</html>
